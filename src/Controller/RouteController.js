@@ -45,9 +45,20 @@ const insertRoute = async(req , res)=>{
 
         const newRoute = new routeModel(body);
         await newRoute.save();
+
+        const bodyReverse = {
+            noidi : req.body.noiden ,
+            noiden : req.body.noidi ,
+            quangduong : req.body.quangduong,
+            giave : req.body.giave,
+            hinhanh : req.body.hinhanh || ''
+        }
+        const newRouteReverse =  new routeModel(bodyReverse)
+        await newRouteReverse.save();
+
         return res.status(200).json({
             success : true ,
-            message : `Thêm tuyến đường ${req.body.noidi} đến ${req.body.noiden} thành công`,
+            message : `Thêm tuyến đường ${req.body.noidi} và ${req.body.noiden} thành công. Hệ thống đã tự thêm tuyến đường ngược lại`,
             body : {
                 newRoute,
                 user

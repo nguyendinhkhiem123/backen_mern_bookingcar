@@ -8,6 +8,7 @@ const routeModel = new Schema({
     noidi : { type : String  , require : true } ,
     noiden : { type : String   , require : true  },
     quangduong : { type : Number , default : 0},
+    thoigian : { type : Number , require : true},
     giave : { type : Number , require :  true},
     hinhanh : {type : String , defualt : ''}
   
