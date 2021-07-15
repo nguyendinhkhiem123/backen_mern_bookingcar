@@ -12,12 +12,11 @@ const userModel = new Schema({
     diachi : { type : String , default : ''},
     email : { type : String , require : true },
     sdt : { type : String , require : true  },
-    ngaysinh : { type : Date  , defaule : new Date()},
+    ngaysinh : { type : Date  , defaule : Date.now},
     hinhanh : { type : String , default : ''},
     vaitro : {
         type : String ,
-        require : true ,
-       
+        require : true ,    
     }
 }, 
 {   

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 
 const routeModel = new Schema({
-    matuyen : { type : Number ,  unique : true  , require : true},
+    matuyen : { type : String , require : true},
     noidi : { type : String  , require : true } ,
     noiden : { type : String   , require : true  },
     quangduong : { type : Number , default : 0},
@@ -18,5 +18,5 @@ const routeModel = new Schema({
     timestamps : true
 })
 
-routeModel.plugin(AutoIncrement , {inc_field : 'matuyen' ,disable_hooks : false });
+// routeModel.plugin(AutoIncrement , {inc_field : 'matuyen' });
 module.exports = mongoose.model('routes' , routeModel); 
