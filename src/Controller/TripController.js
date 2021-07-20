@@ -120,72 +120,120 @@ const getAllTrip = async(req ,res)=>{
     }
 }
 
-const getOneTrip = async(req ,res)=>{
+const getTicketHoursTrip = async(req ,res)=>{
     try{
+      
         const ngaydi = req.query.ngaydi;
-        const noidi = req.query.noidi;
+        const noidi = req.query.noidi
         const noiden = req.query.noiden;
-        console.log(req.query , req.query.ngaydi);
+        const giodi = req.query.giodi;
+     
         const oneRoute = await routeModel.findOne({noidi : noidi , noiden : noiden});
-        const oneTrip = await tripModel.find({route : oneRoute._id , ngaydi : new Date(ngaydi)}).populate('car').populate('route');
-        console.log(oneTrip);
-        if(oneTrip.length > 0){
-            return res.status(200).json({
-                success : true ,
-                message : 'Bạn lấy thành công',
-                body : {
-                    oneTrip
-                 }
-            }); 
+        const oneTrip = await tripModel.find({route : oneRoute._id , ngaydi : new Date(ngaydi),  giodi : giodi  } ).populate('car').populate('route');
+
+        
+        const resultPromiseOne = await Promise.all(
+            oneTrip.map((value,index)=>{
+                return ticketModel.find({trip : value._id , trangthaighe : "ACTIVE"})
+            })
+        );
+    
+        let indexOne = -1;
+        for(let i = 0 ; i < resultPromiseOne.length;i ++ ){
+               if(resultPromiseOne[i].length > 0){
+                   indexOne = i;
+                   break;
+               }
+        }
+
+
+        if(indexOne > -1){    
+                const arrayOne  = [...resultPromiseOne[indexOne]];
+                const oneTripFinal = await tripModel.findById(arrayOne[0].trip).populate('car').populate('route');;
+                
+                   return res.status(200).json({
+                    success : true ,
+                    message : 'Bạn lấy thành công',
+                    body : {
+                        Trip : oneTripFinal,
+                        numberTicket : resultPromiseOne[indexOne].length
+                     }
+                }); 
         }
         else{
             return res.status(200).json({
-                success : false ,
-                message : `không có chuyến xe nào vào ngày ${ngaydi}`
+                    success : false ,
+                    message : `Tất cả các từ tuyến ${noidi} đến  ${noiden} đều hết vé ! vui lòng chọn ngày khác`
             }); 
         }
-
-       
-
     }catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
         })
     }
 }
-const getTwoTrip = async(req ,res)=>{
+const unique = (arr)=> {
+    let newArr = []
+    for (let i = 0; i < arr.length; i++) {
+      if (newArr.indexOf(arr[i]) === -1) {
+        newArr.push(arr[i])
+      }
+    }
+    return newArr
+}
+const getHoursTrip = async(req ,res)=>{
     try{
+        const loai = req.query.loai;
         const ngaydi = req.query.ngaydi;
-        const ngayve = req.query.ngayve;
         const noidi = req.query.noidi;
         const noiden = req.query.noiden;
-        console.log(req.query)
+        let ngayve = "";
         const oneRoute = await routeModel.findOne({noidi : noidi , noiden : noiden});
-        const oneTrip = await tripModel.find({route : oneRoute._id , ngaydi : new Date(ngaydi)}).populate('car').populate('route');;
-
-
-        const twoRoute = await routeModel.findOne({noidi : noiden , noiden : noidi});
-        const twoTrip = await tripModel.find({route : twoRoute._id , ngaydi : new Date(ngayve)}).populate('car').populate('route');;
-
-        if(twoTrip.length > 0 && oneTrip.length > 0){
+        const oneTrip = await tripModel.find({route : oneRoute._id , ngaydi : new Date(ngaydi)})
+        if(oneTrip.length === 0){
             return res.status(200).json({
+                success : false ,
+                message : `không có chuyến xe vào ngày ${ngaydi} `
+            }); 
+        }
+        let hoursOne=[];
+        oneTrip.forEach((value, index)=>{
+            hoursOne.push(value.giodi);
+        })
+        hoursOne = unique(hoursOne);
+
+        let hoursTwo =[];
+        if(loai == 2){
+            ngayve = req.query.ngayve;
+            const twoRoute = await routeModel.findOne({noidi : noiden , noiden : noidi});
+            const twoTrip = await tripModel.find({route : twoRoute._id , ngaydi : new Date(ngayve)})
+            console.log(twoTrip.length , 123)
+            if(twoTrip.length === 0){
+                return res.status(200).json({
+                    success : false ,
+                    message : `không có chuyến xe khứ hồi vào ngày ${ngaydi} và ${ngayve}`,
+                }); 
+            }
+
+            twoTrip.forEach((value, index)=>{
+                hoursTwo .push(value.giodi);
+            })
+        }
+
+
+        
+        return res.status(200).json({
                 success : true ,
                 message : 'Bạn lấy thành công',
                 body : {
-                    oneTrip,
-                    twoTrip
+                    hoursOne  : hoursOne,
+                    hoursTwo : hoursTwo
                  }
             }); 
-        }
-        else{
-            return res.status(200).json({
-                success : false ,
-                message : `không có chuyến xe khứ hồi vào ngày ${ngaydi} và ${ngayve}`,
-            }); 
-        }
+       
     }catch(err){
 
         console.log(err);
@@ -200,6 +248,6 @@ const getTwoTrip = async(req ,res)=>{
 module.exports = {
     insertTrip,
     getAllTrip,
-    getOneTrip,
-    getTwoTrip
+    getHoursTrip,
+    getTicketHoursTrip
 }

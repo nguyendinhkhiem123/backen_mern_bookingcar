@@ -9,14 +9,11 @@ const routeModel = new Schema({
     noiden : { type : String   , require : true  },
     quangduong : { type : Number , default : 0},
     thoigian : { type : Number , require : true},
-    giave : { type : Number , require :  true},
     hinhanh : {type : String , defualt : ''}
-  
 }, 
 {   
-   
     timestamps : true
 })
 
 // routeModel.plugin(AutoIncrement , {inc_field : 'matuyen' });
-module.exports = mongoose.model('routes' , routeModel); 
+module.exports = mongoose.model('routes' , routeModel);

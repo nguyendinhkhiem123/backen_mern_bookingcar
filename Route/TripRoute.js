@@ -6,6 +6,7 @@ const verifyToken = require('../src/Middleware/AuthenToken');
 
 route.post('/insert',verifyToken, tripController.insertTrip);
 route.get('/getall' , tripController.getAllTrip);
-route.get('/getonetrip' , tripController.getOneTrip);
-route.get('/gettwotrip' , tripController.getTwoTrip);
+route.get('/gethourstrip' , tripController.getHoursTrip);
+route.get('/gettickerhourtrip' , tripController.getTicketHoursTrip);
+
 module.exports = route;

@@ -8,6 +8,7 @@ const tripModel = new Schema({
     machuyen : { type : Number ,  unique : true  , require : true},
     ngaydi : { type : Date , require :  true },
     giodi : { type : Number ,  require : true},
+    giave : { type : Number , require :  true},
     route :{
         type : Schema.Types.ObjectId,
         ref : 'routes'
@@ -20,6 +21,7 @@ const tripModel = new Schema({
     //     type : Schema.Types.ObjectId,
     //     ref : 'drivers'
     // },
+    
 }, 
 {   
     // _id :false,

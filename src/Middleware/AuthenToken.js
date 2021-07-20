@@ -8,7 +8,7 @@ const verifyToken = async (req , res , next) =>{
   
     if(!token) return res.status(400).json({
         success : false,
-        message : "Token không tồn tạj"    
+        message : "Token không tồn tại"    
     });
 
     try{

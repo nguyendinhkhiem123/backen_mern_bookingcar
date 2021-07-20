@@ -27,4 +27,4 @@ const userModel = new Schema({
 userModel.plugin(AutoIncrement 
     , {inc_field : 'manhanvien'}
     );
-module.exports = mongoose.model('users' , userModel); 
+module.exports = mongoose.model('users' , userModel);
