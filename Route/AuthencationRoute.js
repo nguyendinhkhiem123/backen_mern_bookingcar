@@ -7,9 +7,12 @@ const authencationController = require('./../src/Controller/AutheController');
 route.post('/login' , authencationController.login)
 
 // Tạo tài khoản 
-route.post('/create' , authencationController.create)
+route.post('/create' , authencationController.createUser);
+
+route.post('/createemployee' , authencationController.createEmployee)
 
 // Lấy lại access token bằng refresh token 
 route.post('/token' , authencationController.token) 
 
 module.exports = route;
+

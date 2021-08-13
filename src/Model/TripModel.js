@@ -4,11 +4,18 @@ const Schema = mongoose.Schema;
 
 
 const tripModel = new Schema({
-    // _id : {type : Number},
+
     machuyen : { type : Number ,  unique : true  , require : true},
     ngaydi : { type : Date , require :  true },
     giodi : { type : Number ,  require : true},
     giave : { type : Number , require :  true},
+    soluongve : { type : Number , require :  true},
+    trangthai : { type : String ,
+        enum : ["HOANTHANH" , "DAHUY" , "DANGDOI" , "DANGKHOIHANH"],
+        default :  'DANGDOI'
+    },
+    ngayhoanthanh :  { type : Date , require :  true },
+    giohoanthanh : { type : Number , require : true},
     route :{
         type : Schema.Types.ObjectId,
         ref : 'routes'
@@ -17,11 +24,7 @@ const tripModel = new Schema({
         type : Schema.Types.ObjectId,
         ref : 'cars'
     },
-    // driver :{
-    //     type : Schema.Types.ObjectId,
-    //     ref : 'drivers'
-    // },
-    
+
 }, 
 {   
     // _id :false,

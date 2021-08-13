@@ -9,7 +9,8 @@ const routeModel = new Schema({
     noiden : { type : String   , require : true  },
     quangduong : { type : Number , default : 0},
     thoigian : { type : Number , require : true},
-    hinhanh : {type : String , defualt : ''}
+    hinhanh : {type : String , defualt : ''},
+    trangthai : { type : Boolean , default : true}
 }, 
 {   
     timestamps : true

@@ -13,7 +13,7 @@ const payModel = new Schema({
     soveve  : { type : Number , default : 0},
     giavedi :   { type : Number , default : 0},
     giaveve : { type : Number , default : 0},
-    hinhthuc: { type : String  , enum : ["OFFLINE" , "ONLINE"] },
+    hinhthuc: { type : String  , enum : ["OFFLINE" , "ONLINE"]  , default : "OFFLINE"},
     trangthai : { type : Boolean , default : false}, 
     user : {
         type : Schema.Types.ObjectId,

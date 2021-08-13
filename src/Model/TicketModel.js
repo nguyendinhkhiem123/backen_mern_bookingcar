@@ -7,24 +7,25 @@ const ticketModel = new Schema({
     // _id : {type : Number},
     thoigiandat : { type : Date , default : null},
     soghe : { type : Number , require : true },
-    trangthaighe : {
+    hovaten : { type : String , default : ""},
+    sdt : { type : String , default : ""},
+    email : { type : String , default : ""},
+    hinhthucthanhtoan : { type : String , enum : ["OFFLINE" , "ONLINE" , ""] , default : ""},
+    trangthaithanhtoan : { type : Boolean , default : false},
+    trangthaive : {
         type : String,
-        enum : ["ACTIVE", 'PENDING' , "COMPLETE"],
-        default : "ACTIVE"
+        enum : ["DAHUY", 'DANGUUTIEN' , "DADAT"],
+        default : "DANGUUTIEN"
     },
-    nguoinhan : { type :  String , default : ''},
-    sdt : { type : String , default : ''},
+    ngayhuy : { type : Date , default : null},
+    tienphat : { type : Number , default : 0},
     trip : {
         type : Schema.Types.ObjectId,
         ref : 'trips'
     },
-    user :{
+    customer :{
         type : Schema.Types.ObjectId,
-        ref : 'users'
-    },
-    pay : {
-        type : Schema.Types.ObjectId,
-        ref : 'pays'
+        ref : 'customers'
     }
 }, 
 {   

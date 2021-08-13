@@ -22,4 +22,4 @@ db.connect();
 // router api
 Route(app);
 
-app.listen(port , ()=> console.log(`server đang chạy port : ${port}`));
+app.listen(port ,()=> console.log(`server đang chạy port : ${port}`));

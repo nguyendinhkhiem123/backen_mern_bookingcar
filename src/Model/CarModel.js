@@ -6,8 +6,9 @@ const Schema = mongoose.Schema;
 const carModel = new Schema({
     // _id : {type : Number},
     biensoxe : { type : String , unique : true  , require : true},
-    soluongghe : {type : Number , require : true },
-    trangthai : { type: Boolean , default : false},
+    soluongghe : {type : Number , require : true , default : 40 },
+    trangthai : { type: Boolean , default : true},
+    hinhanh : { type : String  , default : ''},
     route :{
         type : Schema.Types.ObjectId,
         ref : 'routes'

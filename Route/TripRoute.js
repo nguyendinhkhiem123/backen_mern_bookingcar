@@ -5,8 +5,13 @@ const tripController = require('../src/Controller/TripController');
 const verifyToken = require('../src/Middleware/AuthenToken');
 
 route.post('/insert',verifyToken, tripController.insertTrip);
-route.get('/getall' , tripController.getAllTrip);
-route.get('/gethourstrip' , tripController.getHoursTrip);
-route.get('/gettickerhourtrip' , tripController.getTicketHoursTrip);
+route.get('/getall' ,verifyToken,tripController.getAllTrip);
+route.get('/gethourstrip' ,verifyToken, tripController.getHoursTrip);
+route.get('/gettickerhourtrip' ,verifyToken,tripController.getTicketHoursTrip);
 
+route.post('/updatestatustrip' ,verifyToken, tripController.updateStausTrip);
+route.post('/cancletrip' ,verifyToken,tripController.cancleTrip);
+route.post('/getcar' ,verifyToken,tripController.getCarOfTrip);
+route.post('/updatetrip' ,verifyToken,tripController.updateTrip);
 module.exports = route;
+

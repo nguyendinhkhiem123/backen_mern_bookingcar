@@ -5,4 +5,9 @@ const carController = require('../src/Controller/CarController');
 const verifyToken = require('../src/Middleware/AuthenToken');
 
 route.post('/insert',verifyToken, carController.insertCar);
+
+route.get('/getall',verifyToken, carController.getAllCar);
+route.post('/changestatus',verifyToken, carController.changeStatus);
+route.post('/updatecar',verifyToken, carController.updateCar);
 module.exports = route;
+
