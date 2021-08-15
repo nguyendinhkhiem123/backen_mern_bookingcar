@@ -7,6 +7,7 @@ const tripRoute = require('./TripRoute');
 const ticketRoute = require('./TicketRoute');
 const Statistical = require('./StatisticalRoute');
 const Comment = require('./CommentRoute');
+const Vote = require('./VoteRoute');
 function Route(app){
     
     app.use('/auth' , AuthencationRoute);
@@ -18,6 +19,7 @@ function Route(app){
     app.use('/ticket',  ticketRoute);
     app.use('/statistical',  Statistical);
     app.use('/comment',  Comment);
+    app.use('/vote', Vote)
   
 }
 

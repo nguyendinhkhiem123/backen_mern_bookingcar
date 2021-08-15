@@ -8,7 +8,7 @@ const voteModel = new Schema({
   
     mota : { type : String , require : true},
     sosao : { type : Number , require : true},
-    trangthai : { type : Boolean , defaule : true},
+    trangthai : { type : Boolean , default : true},
     customer :{
         type : Schema.Types.ObjectId,
         ref : 'customers'
@@ -19,4 +19,4 @@ const voteModel = new Schema({
     timestamps : true
 });
 
-module.exports = mongoose.model('votes' , commentModel); 
+module.exports = mongoose.model('votes' , voteModel); 

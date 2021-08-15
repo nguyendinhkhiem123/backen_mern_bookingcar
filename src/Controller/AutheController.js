@@ -106,8 +106,6 @@ const createUser = async ( req , res ) =>{
         await newAccount.save();
 
         const body = {
-            taikhoan : req.body.taikhoan,
-            matkhau  : matkhau1,
             hovaten : req.body.hovaten,
             diachi :  req.body.diachi,
             email : req.body.email,
@@ -136,84 +134,82 @@ const createUser = async ( req , res ) =>{
 
 }
 
-const createEmployee = async ( req , res ) =>{  
+// const createEmployee = async ( req , res ) =>{  
    
-    try{
+//     try{
 
     
-        const account = await accountModel.findOne({ taikhoan : req.body.taikhoan })       
-        if(account) return res.status(200).json({
-            success : false ,
-            message : 'Username đã bị trùng vui lòng thử lại '
-        }); 
-        const role = await RoleModel.findOne({tenquyen : req.body.tenquyen});
-        const matkhau1 = await argon2.hash(req.body.matkhau);
-        const newAccount = new accountModel({
-            taikhoan :  req.body.taikhoan,
-            matkhau :  matkhau1,
-            role : role._id,
-        })
-        await newAccount.save();
+//         const account = await accountModel.findOne({ taikhoan : req.body.taikhoan })       
+//         if(account) return res.status(200).json({
+//             success : false ,
+//             message : 'Username đã bị trùng vui lòng thử lại '
+//         }); 
+//         const role = await RoleModel.findOne({tenquyen : req.body.tenquyen});
+//         const matkhau1 = await argon2.hash(req.body.matkhau);
+//         const newAccount = new accountModel({
+//             taikhoan :  req.body.taikhoan,
+//             matkhau :  matkhau1,
+//             role : role._id,
+//         })
+//         await newAccount.save();
 
-        if(role.tenquyen === 0){
+//         if(role.tenquyen === 0){
 
             
-            const body = {
-                taikhoan : req.body.taikhoan,
-                matkhau  : matkhau1,
-                hovaten : req.body.hovaten,
-                diachi :  req.body.diachi,
-                email : req.body.email,
-                sdt : req.body.sdt,
-                ngaysinh : req.body.ngaysinh,
-                hinhanh : req.body.hinhanh,
-                account : newAccount._id
+//             const body = {
+              
+//                 hovaten : req.body.hovaten,
+//                 diachi :  req.body.diachi,
+//                 email : req.body.email,
+//                 sdt : req.body.sdt,
+//                 ngaysinh : req.body.ngaysinh,
+//                 hinhanh : req.body.hinhanh,
+//                 account : newAccount._id
                 
-            }
+//             }
     
-            const customer = new customerModel(body);
+//             const customer = new customerModel(body);
     
-            await customer.save();
-            return res.status(200).json({
-                success : true ,
-                message : 'Tạo tài khoảng thành công  ',
-                body : customer
+//             await customer.save();
+//             return res.status(200).json({
+//                 success : true ,
+//                 message : 'Tạo tài khoảng thành công  ',
+//                 body : customer
     
-            }); 
-        }
-        else{
-            const body = {
-                taikhoan : req.body.taikhoan,
-                matkhau  : matkhau1,
-                hovaten : req.body.hovaten,
-                diachi :  req.body.diachi,
-                email : req.body.email,
-                sdt : req.body.sdt,
-                ngaysinh : req.body.ngaysinh,
-                hinhanh : req.body.hinhanh,
-                account : newAccount._id
+//             }); 
+//         }
+//         else{
+//             const body = {
+               
+//                 hovaten : req.body.hovaten,
+//                 diachi :  req.body.diachi,
+//                 email : req.body.email,
+//                 sdt : req.body.sdt,
+//                 ngaysinh : req.body.ngaysinh,
+//                 hinhanh : req.body.hinhanh,
+//                 account : newAccount._id
                 
-            }
+//             }
     
-            const employee = new employeeModel(body);
+//             const employee = new employeeModel(body);
     
-            await employee.save();
-            return res.status(200).json({
-                success : true ,
-                message : 'Tạo tài khoảng thành công  ',
-                body : employee
+//             await employee.save();
+//             return res.status(200).json({
+//                 success : true ,
+//                 message : 'Tạo tài khoảng thành công  ',
+//                 body : employee
     
-            }); 
-        }
+//             }); 
+//         }
       
-    }
-    catch(err){
-        console.log(err);
-        return res.status(400)
+//     }
+//     catch(err){
+//         console.log(err);
+//         return res.status(400)
 
-    }
+//     }
 
-}
+// }
 
 /*
     method : POST 
@@ -251,6 +247,6 @@ module.exports = {
     login ,
     createUser ,
     token,
-    createEmployee
+    // createEmployee
     
 }

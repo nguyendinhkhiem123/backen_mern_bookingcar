@@ -9,7 +9,7 @@ route.post('/login' , authencationController.login)
 // Tạo tài khoản 
 route.post('/create' , authencationController.createUser);
 
-route.post('/createemployee' , authencationController.createEmployee)
+// route.post('/createemployee' , authencationController.createEmployee)
 
 // Lấy lại access token bằng refresh token 
 route.post('/token' , authencationController.token) 

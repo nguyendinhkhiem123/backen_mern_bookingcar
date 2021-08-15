@@ -9,8 +9,9 @@ const employeeModel = new Schema({
     diachi : { type : String , default : ''},
     email : { type : String , require : true },
     sdt : { type : String , require : true  },
-    ngaysinh : { type : Date  , defaule : Date.now},
+    ngaysinh : { type : Date  , require : true},
     hinhanh : { type : String , default : ''},
+    trangthai : { type : Boolean , default : true},
     account : {
       type : Schema.Types.ObjectId,
       ref : 'accounts'

@@ -1,4 +1,4 @@
-const userModel = require('../Model/UserModel');
+// const userModel = require('../Model/UserModel');
 const argon2 = require('argon2');
 const mailer = require('../../Service/Mailer');
 
@@ -158,9 +158,118 @@ const forgotPassword =  (async( req , res)=>{
         })
     }
 })
+
+const getEmployee = ( async (req , res) =>{
+    try{
+
+        const vaitro = req.body.vaitro;
+        const id = req.body.user_id;
+        if(vaitro === 0) return res.status(200).json({
+            success : false ,
+            messgae : "Bạn không có quyền thêm"
+        })
+
+        const employee = await employeeModel.find({}).populate('account');
+        return res.status(200).json({
+            success : true ,
+            message : 'Cập nhật thành công',
+            body : employee
+        })
+    }
+    catch(err){
+        console.log(err)
+        res.status(400).json({
+            err 
+        })
+    } 
+})
+const updateStatusEmployee = ( async (req , res) =>{
+    try{
+
+        const vaitro = req.body.vaitro;
+        const id = req.body.user_id;
+        if(vaitro === 0) return res.status(200).json({
+            success : false ,
+            messgae : "Bạn không có quyền thêm"
+        })
+        console.log(req.body)
+        const employee = await employeeModel.findOneAndUpdate({_id : req.body.id} , { trangthai : req.body.trangthai})
+        const newEmployee = await employeeModel.findOne({_id : req.body.id}).populate('account');
+        return res.status(200).json({
+            success : true ,
+            message : 'Cập nhật thành công',
+            body : newEmployee
+        })
+    }
+    catch(err){
+        console.log(err)
+        res.status(400).json({
+            err 
+        })
+    } 
+})
+
+const insertEmployee = ( async (req , res) =>{
+    try{
+
+        const vaitro = req.body.vaitro;
+        const id = req.body.user_id;
+        if(vaitro === 0) return res.status(200).json({
+            success : false ,
+            messgae : "Bạn không có quyền thêm"
+        })
+       
+        const employee = new employeeModel(req.body);
+        await employee.save();
+        const newEmployee = await employeeModel.findOne({_id : employee._id}).populate('account');
+        return res.status(200).json({
+            success : true ,
+            message : 'Thêm thành công',
+            body : newEmployee
+        })
+    }
+    catch(err){
+        console.log(err)
+        res.status(400).json({
+            err 
+        })
+    } 
+})
+
+const updateEmployee = ( async (req , res) =>{
+    try{
+
+        const vaitro = req.body.vaitro;
+        const id = req.body.user_id;
+        if(vaitro === 0) return res.status(200).json({
+            success : false ,
+            messgae : "Bạn không có quyền thêm"
+        })
+       
+        const employee = await employeeModel.findOneAndUpdate({_id : req.body.id } , req.body)
+        const newEmployee = await employeeModel.findOne({_id : req.body.id}).populate('account');
+        console.log(newEmployee);
+        return res.status(200).json({
+            success : true ,
+            message : 'Cập nhật thành công',
+            body : newEmployee
+        })
+    }
+    catch(err){
+        console.log(err)
+        res.status(400).json({
+            err 
+        })
+    } 
+})
 module.exports = {
     getUser,
     updateUser,
     changePassword,
-    forgotPassword
+    forgotPassword,
+    getEmployee,
+    updateStatusEmployee,
+    insertEmployee,
+    updateEmployee
+
 }
