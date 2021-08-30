@@ -12,14 +12,13 @@ const getTicketTrip = async(req , res)=>{
         const trip = await tripModel.findOne({ _id  : req.query.trip}).populate('car');
       
         const listTicket = await  ticketModel.find({
-
                     trip :  req.query.trip,
                     trangthaive : { $ne : "DAHUY" }
                
         })
     
 
-        console.log(listTicket);
+        console.log(trip.car.soluongghe);
         return res.status(200).json({
             success : true ,
             message : 'Bạn đã thêm thành công',
@@ -47,15 +46,12 @@ const getNumberTicket =async(req , res)=>{   // Check kiểm tra vé có đủ h
         const chuyendi = req.query.chuyendi;
         const sovedi = req.query.sovedi;
 
-        if(!req.query.chuyendi){
-            return res.status(200).json({
-                success : false ,
-                message : 'Vé xe không đủ sống lượng mua  !. Vui lòng xem lại',
-               
-            })
-        }
-        const ticketOne = ticketModel.find({trip :  chuyendi , trangthaighe : "ACTIVE"});
-        if(ticketOne.length < sovedi){
+
+        const ticketOne = await ticketModel.find({trip :  chuyendi , trangthaive : { $ne : 'DAHUY'}});
+        const tripOne = await tripModel.find({_id :  chuyendi});
+        const veconlai = tripOne[0].car.soluongghe - ticketOne.length;
+        console.log(veconlai);
+        if(veconlai < sovedi){
             return res.status(200).json({
                 success : false ,
                 message : 'Vé xe không đủ sống lượng mua  !. Vui lòng xem lại',
@@ -98,7 +94,7 @@ const checkOutNumberCar = async(req ,res)=>{
             sogheve = req.body.sogheve
             RouteTwo = await routeModel.findOne({_id : chuyenve.route})
         }
-
+        console.log(customer , id);
         RouteOne = await routeModel.findOne({_id : chuyendi.route})
        
         const resultPromiseOne = await Promise.all(
@@ -112,7 +108,6 @@ const checkOutNumberCar = async(req ,res)=>{
                     hinhthucthanhtoan : hinhthuc,
                     trangthaithanhtoan : hinhthuc === "OFFLINE" ? false : true,
                     customer : customer._id,
-                   
                 })
             })
       
@@ -129,7 +124,7 @@ const checkOutNumberCar = async(req ,res)=>{
                     sdt : sdt,
                     email :  email ,
                     hinhthucthanhtoan : hinhthuc,
-                    trangthaithanhtoan : hinhthucthanhtoan === "OFFLINE" ? false : true,
+                    trangthaithanhtoan : hinhthuc === "OFFLINE" ? false : true,
                     customer : customer._id,
                 })
             })
@@ -219,12 +214,12 @@ const checkOutNumberCar = async(req ,res)=>{
     }
 }
 
-
 const checkNumberCar = async(req, res)=>{
     try{
         const soghedi = req.body.soghedi;
         const chuyendi = req.body.chuyendi;
-        const ticketNumberCarOne = await ticketModel.find({soghedi : {
+        console.log(req.body)
+        const ticketNumberCarOne = await ticketModel.find({soghe : {
             $in: soghedi.map(value => value)
          },
             trip :  chuyendi ,
@@ -341,25 +336,59 @@ const getTicketOfUser = async(req, res)=>{
 
 const cancleTicket = async(req, res)=>{
     try{
-        const id = req.body.id
-        
-        
-        const updateTicket =  await ticketModel.findOneAndUpdate({
-            _id :  id 
-        },
-            {
-               trangthaive : 'DAHUY',
-               ngayhuy : new Date(),
-               tienphat : 10000
-            } 
-        ) 
-        
-        const ticket = await ticketModel.findOne({_id : updateTicket._id})
-        return res.status(200).json({
-            success : true,
-            message : "Hủy vé thành công",
-            boyd : ticket
-        })
+        const id = req.body.id     
+        const ticketOne = await ticketModel.findOne({
+            _id : id
+          
+        }).populate('trip');
+        if(ticketOne){
+            // if(ticketOne.trangthaive === 'DANGUUTIEN'){
+            //     await ticketModel.findOneAndDelete({_id : id});
+            //     return res.status(200).json({
+            //         success : true,
+            //         message : "Vé xe đang ưu tiên đã được xóa.",
+            //         body : ticketOne
+            //     }) 
+            // }
+            if(ticketOne.trangthaive === 'DAHUY'){
+                return res.status(200).json({
+                    success : true,
+                    message : "Vé xe đã được hủy trước đó rồi .",
+                    body : ticketOne
+                }) 
+            }
+           
+    
+            let body = {};
+            if(req.body.vaitro === 0){
+                body = {
+                        trangthaive : 'DAHUY',
+                        ngayhuy : new Date(),
+                        tienphat : 10000
+                    
+                     }
+            }
+            else{
+                body = {
+                    trangthaive : 'DAHUY'
+                }
+            }
+            const updateTicket = await ticketModel.findOneAndUpdate({_id : id }, body)
+            const ticket = await ticketModel.findOne({_id : updateTicket._id}).populate('trip');
+            return res.status(200).json({
+                success : true,
+                message : "Hủy vé thành công",
+                body : ticket
+            })
+        }
+        else{
+            return res.status(200).json({
+                success : false ,
+                message : 'Vé xe đang ưu tiên đã được xóa rồi !',
+               
+            })
+        }
+     
     }
     catch(err){
         console.log(err)
@@ -382,16 +411,14 @@ const getTicketOfTrip = async(req , res)=>{
         })
    
         const listTicket = await  ticketModel.find({
-
                     trip :  req.query.id,
                     // trangthaive : { $ne : "DAHUY" },
-                    thoigiandat : { $ne : null}
-
+                    // thoigiandat : { $ne : null}
                
         }).populate('trip')
-    
+        
 
-        console.log(listTicket);
+        console.log(listTicket.length);
         return res.status(200).json({
             success : true ,
             message : 'Bạn đã thêm thành công',
@@ -448,6 +475,12 @@ const insertTicketOfAdmin = async(req , res)=>{
 
         const trip_id = req.body.trip;
         const trip = await tripModel.findOne({_id : trip_id}).populate('car').populate('route');
+        if(trip.trangthai === 'DAHUY'){
+            return res.status(200).json({
+                success : false,
+                message : 'Chuyến xe đã hủy . Không thể thêm vé xe'
+            })
+        }
         const ticket = await ticketModel.find({trip : trip_id , trangthaive : { $ne : "DAHUY"}
           });
 
@@ -463,7 +496,7 @@ const insertTicketOfAdmin = async(req , res)=>{
             })
         }
         
-        if(ticket.length + 1 > trip.soluongve) return res.status(200).json({
+        if(ticket.length + 1 > trip.car.soluongghe) return res.status(200).json({
             success : false ,
             message : "Vé xe đã hết. Vui lòng chọn lại"
         })
@@ -509,7 +542,7 @@ const updateTicketOfAdmin = async(req , res)=>{
             success : false ,
              message : "Bạn không có quyền "
         });
-
+        console.log(req.body);
         const trip_id = req.body.trip;
         const trip = await tripModel.findOne({_id : trip_id}).populate('car').populate('route');
         const ticket = await ticketModel.find({trip : trip_id , trangthaive : { $ne : "DAHUY"}
@@ -526,21 +559,15 @@ const updateTicketOfAdmin = async(req , res)=>{
                message : "Không thể cập nhật . chuyến xe đã trạng thái chạy"
             })
         }
-        
-        // if(ticket.length + 1 > trip.soluongve) return res.status(200).json({
-        //     success : false ,
-        //     message : "Vé xe đã hết. Vui lòng chọn lại"
-        // })
-        
         const checkSlot = await ticketModel.findOne({trip : trip_id , trangthaive : { $ne : "DAHUY"} , soghe : req.body.soghe , _id : { $ne : req.body.id} });
-
         if(checkSlot){
             return res.status(200).json({
                 success : false ,
                 message : "Chỗ ngồi đã được đặt rồi . Vui lòng chọn lại"
             })
         }
-      
+        
+        console.log(req.body);
         const body = {
           
             soghe : req.body.soghe ,
@@ -548,23 +575,55 @@ const updateTicketOfAdmin = async(req , res)=>{
             sdt : req.body.sdt ,
             email : req.body.email,
             hinhthucthanhtoan : req.body.hinhthucthanhtoan,
-            trangthaithanhtoan  :req.body.trangthaithanhtoan,
+            trangthaithanhtoan  :req.body.trangthaithanhtoan
         }
         const newTicket = await ticketModel.findOneAndUpdate({_id : req.body.id }, body);
      
 
-        const ticketFindal = await ticketModel.findOne({_id : newTicket._id}).populate('trip');
+        const ticketFindal = await ticketModel.findOne({_id : req.body.id}).populate('trip');
+        console.log(req.body , ticketFindal);
         return res.status(200).json({
             success : true ,
             message : 'Bạn đã cập nhật thành công',
             body : ticketFindal
         }); 
     }catch(err){
-        console.log(err)
+        console.log(err);
     }
 }
 
+const deleteTicket = async(req, res)=>{
+    try{
+        const trangthai =  req.body.trangthai;
+        const soghedi = req.body.soghedi;
+        const chuyendi = req.body.chuyendi;
+        console.log(req.body);
+        const resultPromiseOne = await Promise.all(
+            soghedi.map((value,index)=>{
+                return ticketModel.findOneAndDelete({trip : chuyendi, soghe : value , trangthaive : 'DANGUUTIEN'});
+            })
+        );
+        if(resultPromiseOne.length > 0){
+            res.status(200).json({
+                success : true ,
+                message : 'Thành công',
+               
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi',
+           
+        })
+    }
+}
 
+const checkTicket = async(req, res)=>{
+
+}
 module.exports ={
     getTicketTrip,
     getNumberTicket,
@@ -577,7 +636,8 @@ module.exports ={
     getTicketOfTrip,
     getSlotCar,
     insertTicketOfAdmin,
-    updateTicketOfAdmin
+    updateTicketOfAdmin,
+    deleteTicket
 }
 
 

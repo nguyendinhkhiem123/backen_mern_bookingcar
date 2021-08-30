@@ -1,4 +1,5 @@
 const carModel = require('../Model/CarModel');
+const TripModel = require('../Model/TripModel');
 const insertCar = async(req , res)=>{
     try{
         const vaitro = req.body.vaitro;  
@@ -110,7 +111,6 @@ const updateCar = async(req , res)=>{
             trangthai  : req.body.trangthai,
             biensoxe  : req.body.biensoxe ,
             soluongghe  : req.body.soluongghe,
-            route : req.body.route
         })
         return res.status(200).json({
             success : true ,
@@ -128,9 +128,44 @@ const updateCar = async(req , res)=>{
         })
     }
 }
+
+const deleteCar = async (req, res)=>{
+    try{
+        const vaitro = req.body.vaitro;
+        if(vaitro === 0) return res.status(200).json({
+            success : false ,
+            message : "Bạn không có quyền sửa"
+        })
+
+        const trip =  await TripModel.find({car : req.body.id})
+
+        if(trip.length > 0){
+            return res.status(200).json({
+                success : false ,
+                message : "Xe đã tạo chuyến . Không thể xóa"
+            })
+        }
+        await carModel.findOneAndDelete({_id : req.body.id});
+        return res.status(200).json({
+            success : true ,
+            message : 'Xóa thành công',
+         
+        }); 
+
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi',
+           
+        })
+    }
+}
 module.exports = {
    insertCar,
    getAllCar,
    changeStatus,
-   updateCar
+   updateCar,
+   deleteCar
 }

@@ -19,5 +19,7 @@ route.get('/getticketoftrip',verifyToken,ticketController.getTicketOfTrip);
 route.post('/getslotcar',verifyToken,ticketController.getSlotCar);
 route.post('/insertticketofadmin',verifyToken,ticketController.insertTicketOfAdmin);
 route.post('/updateticketofadmin',verifyToken,ticketController.updateTicketOfAdmin);
+route.post('/deleteticket',verifyToken,ticketController.deleteTicket);
 module.exports = route
+
 

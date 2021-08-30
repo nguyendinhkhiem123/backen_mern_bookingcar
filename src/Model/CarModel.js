@@ -9,10 +9,6 @@ const carModel = new Schema({
     soluongghe : {type : Number , require : true , default : 40 },
     trangthai : { type: Boolean , default : true},
     hinhanh : { type : String  , default : ''},
-    route :{
-        type : Schema.Types.ObjectId,
-        ref : 'routes'
-    }
 }, 
 {   
     // _id :false,

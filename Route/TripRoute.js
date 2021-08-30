@@ -13,5 +13,6 @@ route.post('/updatestatustrip' ,verifyToken, tripController.updateStausTrip);
 route.post('/cancletrip' ,verifyToken,tripController.cancleTrip);
 route.post('/getcar' ,verifyToken,tripController.getCarOfTrip);
 route.post('/updatetrip' ,verifyToken,tripController.updateTrip);
+route.post('/deletetrip' ,verifyToken,tripController.deleteTrip);
 module.exports = route;
 

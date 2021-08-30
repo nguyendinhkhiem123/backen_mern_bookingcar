@@ -9,9 +9,9 @@ const tripModel = new Schema({
     ngaydi : { type : Date , require :  true },
     giodi : { type : Number ,  require : true},
     giave : { type : Number , require :  true},
-    soluongve : { type : Number , require :  true},
+    // soluongve : { type : Number , require :  true},
     trangthai : { type : String ,
-        enum : ["HOANTHANH" , "DAHUY" , "DANGDOI" , "DANGKHOIHANH"],
+        enum : [ "DAHUY" , "DANGDOI" , "DANGKHOIHANH" ,"HOANTHANH" ],
         default :  'DANGDOI'
     },
     ngayhoanthanh :  { type : Date , require :  true },

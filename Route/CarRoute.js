@@ -9,5 +9,6 @@ route.post('/insert',verifyToken, carController.insertCar);
 route.get('/getall',verifyToken, carController.getAllCar);
 route.post('/changestatus',verifyToken, carController.changeStatus);
 route.post('/updatecar',verifyToken, carController.updateCar);
+route.post('/deletecar',verifyToken, carController.deleteCar);
 module.exports = route;
 
