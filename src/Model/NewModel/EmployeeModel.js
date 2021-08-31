@@ -13,7 +13,7 @@ const employeeModel = new Schema({
     hinhanh : { type : String , default : ''},
     trangthai : { type : Boolean , default : true},
     account : {
-      type : Schema.Types.ObjectId,
+      type : Schema.Types.String,
       ref : 'accounts'
     }
 }, 

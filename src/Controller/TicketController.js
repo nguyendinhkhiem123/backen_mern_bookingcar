@@ -1,11 +1,7 @@
 const routeModel = require('../Model/RouteModel');
 const ticketModel = require('../Model/TicketModel');
-const userModel = require('../Model/UserModel');
 const mailer = require('../../Service/Mailer');
-const payModel = require('../Model/PayModel');
-const cancleModel =  require('../Model/HistoryCancle');
 const tripModel = require('../Model/TripModel');
-
 const customerModel = require('../Model/NewModel/CustomerModel')
 const getTicketTrip = async(req , res)=>{
     try{
@@ -30,7 +26,7 @@ const getTicketTrip = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -40,8 +36,7 @@ const getTicketTrip = async(req , res)=>{
 
 const getNumberTicket =async(req , res)=>{   // Check kiểm tra vé có đủ hay không
     try{
-        // // const loai = req.query.loai;
-        // console.log(    req.query.chuyendi, req.query.sovedi);
+  
      
         const chuyendi = req.query.chuyendi;
         const sovedi = req.query.sovedi;
@@ -245,7 +240,7 @@ const checkNumberCar = async(req, res)=>{
         })
     }catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -277,7 +272,7 @@ const updatStatusTicket = async(req ,res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -289,8 +284,11 @@ const insertTicket = async(req ,res)=>{
         const soghedi = req.body.soghedi;
         const chuyendi = req.body.chuyendi;
 
+        const trip =  await tripModel.findOne({_id : req.body.chuyendi}).populate('route');
         const list = await ticketModel.insertMany(soghedi.map((value,index)=>{
+            
             return {
+                _id : `${trip.route.noidi}-${trip.route.noidi}-${(new Date).toString().slice(0,24)}-${index+1}`,
                 soghe : value,
                 trip : chuyendi
             }
@@ -305,7 +303,7 @@ const insertTicket = async(req ,res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -326,7 +324,7 @@ const getTicketOfUser = async(req, res)=>{
     }
     catch(err){
         console.log(err)
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -392,7 +390,7 @@ const cancleTicket = async(req, res)=>{
     }
     catch(err){
         console.log(err)
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -417,7 +415,7 @@ const getTicketOfTrip = async(req , res)=>{
                
         }).populate('trip')
         
-
+        
         console.log(listTicket.length);
         return res.status(200).json({
             success : true ,
@@ -429,6 +427,11 @@ const getTicketOfTrip = async(req , res)=>{
         }); 
     }catch(err){
         console.log(err)
+        return res.status(200).json({
+            success : true ,
+            message : 'Bạn đã cập nhật thành công',
+            body : ticketFindal
+        }); 
     }
 }
 const getSlotCar = async(req , res)=>{
@@ -463,6 +466,11 @@ const getSlotCar = async(req , res)=>{
         }); 
     }catch(err){
         console.log(err)
+        return res.status(200).json({
+            success : true ,
+            message : 'Bạn đã cập nhật thành công',
+            body : ticketFindal
+        }); 
     }
 }
 const insertTicketOfAdmin = async(req , res)=>{
@@ -495,7 +503,6 @@ const insertTicketOfAdmin = async(req , res)=>{
                message : "Không thể thêm . chuyến xe đã trạng thái chạy"
             })
         }
-        
         if(ticket.length + 1 > trip.car.soluongghe) return res.status(200).json({
             success : false ,
             message : "Vé xe đã hết. Vui lòng chọn lại"
@@ -509,8 +516,9 @@ const insertTicketOfAdmin = async(req , res)=>{
                 message : "Chỗ ngồi đã được đặt rồi . Vui lòng chọn lại"
             })
         }
-      
+        
         const body = {
+            _id : `${trip.route.noidi}-${trip.route.noiden}-${(new Date()).toString().slice(0,24)}-0`,
             thoigiandat : new Date(),
             soghe : req.body.soghe ,
             hovaten : req.body.hovaten,
@@ -533,6 +541,11 @@ const insertTicketOfAdmin = async(req , res)=>{
         }); 
     }catch(err){
         console.log(err)
+           return res.status(200).json({
+            success : true ,
+            message : 'Bạn đã cập nhật thành công',
+            body : ticketFindal
+        }); 
     }
 }
 const updateTicketOfAdmin = async(req , res)=>{
@@ -545,9 +558,14 @@ const updateTicketOfAdmin = async(req , res)=>{
         console.log(req.body);
         const trip_id = req.body.trip;
         const trip = await tripModel.findOne({_id : trip_id}).populate('car').populate('route');
-        const ticket = await ticketModel.find({trip : trip_id , trangthaive : { $ne : "DAHUY"}
-          });
+        const ticket = await ticketModel.findOne({_id : req.body.id});
 
+        if(ticket.trangthaive === 'DAHUY'){
+            return res.status(200).json({
+                success : false ,
+                 message : "Không thể chỉnh sửa . Vé đã hủy rồi "
+            });
+        }
         const ngayhientai = new Date();
         const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours()));
 
@@ -613,7 +631,7 @@ const deleteTicket = async(req, res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            

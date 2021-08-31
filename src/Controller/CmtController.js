@@ -60,8 +60,8 @@ const insertReply = async (req,res)=>{
 
 const deleteComment = async (req,res)=>{
     try{
-        const comment = await commentModel.findOneAndUpdate({ _id : req.body.id }, { trangthai : false}) 
-        const reply = await replyModel.updateMany({comment : req.body.id } , {trangthai : false })
+        const comment = await commentModel.findOneAndDelete({ _id : req.body.id }, { trangthai : false}) 
+        const reply = await replyModel.deleteMany({comment : req.body.id })
         return res.status(200).json({
             success : true ,
             message : 'Xóa thành công'
@@ -73,7 +73,7 @@ const deleteComment = async (req,res)=>{
 }
 const deleteReply = async (req,res)=>{
     try{
-        const comment = await replyModel.findOneAndUpdate({ _id : req.body.id }, { trangthai : false}) 
+        const comment = await replyModel.findOneAndDelete({ _id : req.body.id }) 
         
         return res.status(200).json({
             success : true ,

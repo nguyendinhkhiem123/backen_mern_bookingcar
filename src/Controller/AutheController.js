@@ -15,7 +15,7 @@ const RoleModel = require('../Model/NewModel/RoleModel');
 const login = async ( req , res )=>{
     try{
         
-        const account =  await accountModel.findOne({taikhoan : req.body.taikhoan}).populate('role');
+        const account =  await accountModel.findOne({_id : req.body.taikhoan}).populate('role');
         console.log(account);
 
         if(!account) return res.json({
@@ -36,10 +36,16 @@ const login = async ( req , res )=>{
 
         if(account.role.tenquyen !== 0){
             const employee = await employeeModel.findOne({ account : account._id});
-            ma = employee._id
+            if(employee.trangthai ===true) ma = employee._id
+            else {
+                return res.status(200).json({
+                    success : false,
+                    message : 'Tài khoản không thể đăng nhập. Nhân viên đã nghỉ'
+                })
+            }
         }
         else{
-            const customer = await customerModel.findOne({ account : account._id});
+            const customer = await customerModel.findOne({ account : account._id});  
             ma = customer._id
         }
 
@@ -90,7 +96,8 @@ const createUser = async ( req , res ) =>{
    
     try{
 
-        const account = await accountModel.findOne({ taikhoan : req.body.taikhoan })       
+        console.log(req.body);
+        const account = await accountModel.findOne({ _id : req.body.taikhoan })       
         if(account) return res.status(200).json({
             success : false ,
             message : 'Username đã bị trùng vui lòng thử lại '
@@ -99,7 +106,7 @@ const createUser = async ( req , res ) =>{
         const matkhau1 = await argon2.hash(req.body.matkhau);
 
         const newAccount = new accountModel({
-            taikhoan :  req.body.taikhoan,
+            _id : req.body.taikhoan,
             matkhau :  matkhau1,
             role : role._id,
         })
@@ -134,88 +141,6 @@ const createUser = async ( req , res ) =>{
 
 }
 
-// const createEmployee = async ( req , res ) =>{  
-   
-//     try{
-
-    
-//         const account = await accountModel.findOne({ taikhoan : req.body.taikhoan })       
-//         if(account) return res.status(200).json({
-//             success : false ,
-//             message : 'Username đã bị trùng vui lòng thử lại '
-//         }); 
-//         const role = await RoleModel.findOne({tenquyen : req.body.tenquyen});
-//         const matkhau1 = await argon2.hash(req.body.matkhau);
-//         const newAccount = new accountModel({
-//             taikhoan :  req.body.taikhoan,
-//             matkhau :  matkhau1,
-//             role : role._id,
-//         })
-//         await newAccount.save();
-
-//         if(role.tenquyen === 0){
-
-            
-//             const body = {
-              
-//                 hovaten : req.body.hovaten,
-//                 diachi :  req.body.diachi,
-//                 email : req.body.email,
-//                 sdt : req.body.sdt,
-//                 ngaysinh : req.body.ngaysinh,
-//                 hinhanh : req.body.hinhanh,
-//                 account : newAccount._id
-                
-//             }
-    
-//             const customer = new customerModel(body);
-    
-//             await customer.save();
-//             return res.status(200).json({
-//                 success : true ,
-//                 message : 'Tạo tài khoảng thành công  ',
-//                 body : customer
-    
-//             }); 
-//         }
-//         else{
-//             const body = {
-               
-//                 hovaten : req.body.hovaten,
-//                 diachi :  req.body.diachi,
-//                 email : req.body.email,
-//                 sdt : req.body.sdt,
-//                 ngaysinh : req.body.ngaysinh,
-//                 hinhanh : req.body.hinhanh,
-//                 account : newAccount._id
-                
-//             }
-    
-//             const employee = new employeeModel(body);
-    
-//             await employee.save();
-//             return res.status(200).json({
-//                 success : true ,
-//                 message : 'Tạo tài khoảng thành công  ',
-//                 body : employee
-    
-//             }); 
-//         }
-      
-//     }
-//     catch(err){
-//         console.log(err);
-//         return res.status(400)
-
-//     }
-
-// }
-
-/*
-    method : POST 
-    url : /auth/token 
-    body : accessToken 
-*/
 
 const token = async ( req , res ) =>{
     const refreshToken =  req.body.refreshToken
@@ -243,10 +168,44 @@ const token = async ( req , res ) =>{
     }
 }
 
+const adminCreateAccount = async(req, res)=>{
+    try{
+        console.log(req.body);
+        const account = await accountModel.findOne({ _id : req.body.taikhoan })       
+        if(account) return res.status(200).json({
+            success : false ,
+            message : 'Username đã bị trùng vui lòng thử lại '
+        }); 
+        const role = await RoleModel.findOne({tenquyen : 1});
+        const matkhau1 = await argon2.hash(req.body.matkhau);
+
+        const newAccount = new accountModel({
+            _id : req.body.taikhoan,
+            matkhau :  matkhau1,
+            role : role._id,
+        })
+        await newAccount.save();
+
+        await employeeModel.findOneAndUpdate({_id : req.body.nhanvien} , {
+            account : newAccount._id
+        });
+        return res.status(200).json({
+            success:true,
+            message : 'Tạo tài khoản thành công'
+        })
+    }catch(err){
+        console.log(err);
+        return res.status(200).json({
+            success :false,
+            message : 'Lỗi hệ thống'
+        })
+    }
+}
 module.exports = {
     login ,
     createUser ,
     token,
+    adminCreateAccount
     // createEmployee
     
 }

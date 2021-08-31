@@ -4,16 +4,15 @@ const Schema = mongoose.Schema;
 
 
 const carModel = new Schema({
-    // _id : {type : Number},
-    biensoxe : { type : String , unique : true  , require : true},
-    soluongghe : {type : Number , require : true , default : 40 },
+    _id : { type : String},
+    // biensoxe : { type : String , unique : true  , require : true},
+    soluongghe : {type : Number , require : true  },
     trangthai : { type: Boolean , default : true},
     hinhanh : { type : String  , default : ''},
 }, 
 {   
-    // _id :false,
+    _id : false,
     timestamps : true
 })
-
 
 module.exports = mongoose.model('cars' , carModel)

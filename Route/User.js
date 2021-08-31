@@ -12,6 +12,7 @@ route.post('/changepassword' ,verifyToken,userController.changePassword);
 route.post('/forgotpassword' ,userController.forgotPassword);
 route.post('/updateemployee' ,verifyToken,userController.updateEmployee);
 route.post('/insertemployee' ,verifyToken,userController.insertEmployee);
+route.get('/getemployeenoaccount' ,verifyToken,userController.getEmployeeNoAccount);
 module.exports = route;
 
 

@@ -12,7 +12,6 @@ const getVote = async(req,res)=>{
     }
 }
 
-
 const insertVote = async (req,res)=>{
     try{
         const comment = new voteModel(req.body);
@@ -31,7 +30,7 @@ const insertVote = async (req,res)=>{
 
 const deleteVote = async (req,res)=>{
     try{
-        const comment = await voteModel.findOneAndUpdate({ _id : req.body.id }, { trangthai : false}) 
+        const comment = await voteModel.findOneAndDelete({ _id : req.body.id }) 
         
         return res.status(200).json({
             success : true ,

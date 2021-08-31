@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
 
 
@@ -13,7 +12,7 @@ const customerModel = new Schema({
     hinhanh : { type : String , default : ''},
     trangthai : { type : Boolean , default : true},
     account : {
-      type : Schema.Types.ObjectId,
+      type : Schema.Types.String,
       ref : 'accounts'
     }
 }, 

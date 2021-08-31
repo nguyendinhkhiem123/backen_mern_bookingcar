@@ -54,8 +54,9 @@ const updateUser = ( async (req , res) =>{
     }
     catch(err){
         console.log(err)
-        res.status(400).json({
-            err 
+        res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
         })
     } 
 })
@@ -97,8 +98,9 @@ const changePassword = ( async (req , res)=>{
         })
     }
     catch(err){
-        res.status(400).json({
-            err : err.messgae
+        res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
         })
     } 
 })
@@ -178,8 +180,9 @@ const getEmployee = ( async (req , res) =>{
     }
     catch(err){
         console.log(err)
-        res.status(400).json({
-            err 
+        res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
         })
     } 
 })
@@ -203,8 +206,9 @@ const updateStatusEmployee = ( async (req , res) =>{
     }
     catch(err){
         console.log(err)
-        res.status(400).json({
-            err 
+        res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
         })
     } 
 })
@@ -230,8 +234,9 @@ const insertEmployee = ( async (req , res) =>{
     }
     catch(err){
         console.log(err)
-        res.status(400).json({
-            err 
+        res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
         })
     } 
 })
@@ -257,11 +262,44 @@ const updateEmployee = ( async (req , res) =>{
     }
     catch(err){
         console.log(err)
-        res.status(400).json({
-            err 
+        res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
         })
     } 
 })
+
+const getEmployeeNoAccount = async(req, res)=>{
+    try{    
+        const vaitro = req.body.vaitro;
+        const id = req.body.user_id;
+        if(vaitro !== 2) return res.status(200).json({
+            success : false ,
+            messgae : "Bạn không có quyền thêm"
+        })
+        const listUser =[];
+        const employee = await employeeModel.find({}).populate('account');
+        if(employee.length > 0){
+            employee.forEach(value=>{
+                if(!value.account){
+                    listUser.push(value)
+                }
+            })
+        }
+        return res.status(200).json({
+            success : true ,
+            message : 'Lấy thông tin lỗi',
+            body : listUser
+
+        })
+    }catch(err){
+        console.log(err);
+        return res.status(200).json({
+            success : false ,
+            message : 'Lấy thông tin lỗi'
+        })
+    }
+}
 module.exports = {
     getUser,
     updateUser,
@@ -270,6 +308,7 @@ module.exports = {
     getEmployee,
     updateStatusEmployee,
     insertEmployee,
-    updateEmployee
+    updateEmployee,
+    getEmployeeNoAccount
 
 }

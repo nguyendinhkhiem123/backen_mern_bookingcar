@@ -1,5 +1,4 @@
 
-const { findOneAndDelete } = require('../Model/RouteModel');
 const routeModel = require('../Model/RouteModel');
 const tripModel = require('../Model/TripModel');
 
@@ -17,7 +16,7 @@ const getAllRoute=  async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -80,7 +79,7 @@ const insertRoute = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -149,7 +148,7 @@ const updateRoute = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -187,7 +186,7 @@ const changeStatus = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -238,7 +237,7 @@ const deleteRoute = async(req, res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -284,7 +283,7 @@ const checkRoute = async(req, res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            

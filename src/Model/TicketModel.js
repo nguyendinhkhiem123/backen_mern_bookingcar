@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 
 
 const ticketModel = new Schema({
-    // _id : {type : Number},
+    _id : {type : String},
     thoigiandat : { type : Date , default : null},
-    soghe : { type : Number , require : true },
+    soghe : { type : Number , require : true , min : 1},
     hovaten : { type : String , default : ""},
     sdt : { type : String , default : ""},
     email : { type : String , default : ""},
@@ -29,8 +29,8 @@ const ticketModel = new Schema({
     }
 }, 
 {   
-    
+    _id : false,
     timestamps : true
 })
-
+ticketModel.index({ soghe: 1, trip: 1, thoigiandat : 1 , trangthai :1}, { unique: true });
 module.exports = mongoose.model('tickets' , ticketModel); 

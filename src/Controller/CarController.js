@@ -12,6 +12,9 @@ const insertCar = async(req , res)=>{
             success : false ,
             message : "Biển số xe bị trùng vui lòng xem lại"
         })
+        const biensoxe = req.body.biensoxe;
+        console.log(req.body);
+        req.body._id = biensoxe;
         const newCar = new carModel(req.body);
         await newCar.save()
 
@@ -26,9 +29,9 @@ const insertCar = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
-            message : 'Lấy thông tin lỗi',
+            message : 'Hành động thất bại',
            
         })
     }
@@ -55,9 +58,9 @@ const getAllCar = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
-            message : 'Lấy thông tin lỗi',
+            message : 'Hành động thất bại',
            
         })
     }
@@ -83,9 +86,9 @@ const changeStatus = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
-            message : 'Lấy thông tin lỗi',
+            message : 'Hành động thất bại',
            
         })
     }
@@ -121,9 +124,9 @@ const updateCar = async(req , res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
-            message : 'Lấy thông tin lỗi',
+            message : 'Hành động thất bại',
            
         })
     }
@@ -155,9 +158,9 @@ const deleteCar = async (req, res)=>{
     }
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
-            message : 'Lấy thông tin lỗi',
+            message : 'Hành động thất bại',
            
         })
     }

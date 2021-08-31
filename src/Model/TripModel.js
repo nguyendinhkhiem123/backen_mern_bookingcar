@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 const tripModel = new Schema({
 
-    machuyen : { type : Number ,  unique : true  , require : true},
+    // machuyen : { type : Number ,  unique : true  , require : true},
     ngaydi : { type : Date , require :  true },
     giodi : { type : Number ,  require : true},
     giave : { type : Number , require :  true},
@@ -21,17 +21,18 @@ const tripModel = new Schema({
         ref : 'routes'
     },
     car :{
-        type : Schema.Types.ObjectId,
+        type : Schema.Types.String,
         ref : 'cars'
     },
 
-}, 
+},
 {   
     // _id :false,
     timestamps : true
 })
 
-tripModel.plugin(AutoIncrement 
-    , {inc_field : 'machuyen'}
-);
+// tripModel.plugin(AutoIncrement 
+//     , {inc_field : 'machuyen'}
+
+tripModel.index({ ngaydi: 1, giodi: 1, car : 1 , route :1}, { unique: true , require : true});
 module.exports = mongoose.model('trips' , tripModel); 

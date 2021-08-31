@@ -2,7 +2,6 @@ const AuthencationRoute = require('./AuthencationRoute');
 const UserRoute = require('./User');
 const RouteRoute = require('./Route');
 const carRoute = require('./CarRoute');
-const driverRoute = require('./DriverRoute');
 const tripRoute = require('./TripRoute');
 const ticketRoute = require('./TicketRoute');
 const Statistical = require('./StatisticalRoute');
@@ -14,12 +13,11 @@ function Route(app){
     app.use('/user' , UserRoute);
     app.use('/route' , RouteRoute);
     app.use('/car' , carRoute);
-    app.use('/driver' , driverRoute);
     app.use('/trip',  tripRoute);
     app.use('/ticket',  ticketRoute);
     app.use('/statistical',  Statistical);
     app.use('/comment',  Comment);
-    app.use('/vote', Vote)
+    app.use('/vote', Vote);
   
 }
 

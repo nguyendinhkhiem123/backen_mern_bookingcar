@@ -14,6 +14,7 @@ const insertTrip = async(req , res)=>{
             success : false ,
          message : "Bạn không có quyền thêm"
         })
+        console.log(req.body);
         const car = await carModel.findOne({_id : req.body.car});  
         const route = await routeModel.findOne({noidi : req.body.noidi , noiden : req.body.noiden});
         if(car.trangthai === false){
@@ -62,7 +63,7 @@ const insertTrip = async(req , res)=>{
     catch(err)
     {
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -89,7 +90,7 @@ const getAllTrip = async(req ,res)=>{
     } 
     catch(err){
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -225,7 +226,7 @@ const getHoursTrip = async(req ,res)=>{
     }catch(err){
 
         console.log(err);
-        return res.status(400).json({
+        return res.status(200).json({
             success : false ,
             message : 'Lấy thông tin lỗi',
            
@@ -325,8 +326,59 @@ const cancleTrip  = async(req, res)=>{
         })
     }
 }
-const getCarOfTrip = async(req ,res)=>{
+const checkUnquieCar = (arrTrip , _id)=>{ // kiểm tra xe có chạy chuyến nào không ?
+    let boolean = false;
+    for(let i = 0 ; i < arrTrip.length ;i++){
+        if(arrTrip[i].car._id === _id) 
+        {
+            boolean = true;
+            break
+        }
+    }
+    return boolean
+}
+
+const checkTrip = (arrTrip , _id , currentDate , currentRoute)=>{  // list đã được sort;
+     let boolean = true;
+     if(!checkUnquieCar(arrTrip , _id )){
+            boolean = true;
+     }
+     else{
+         const arrTripFilter = arrTrip.filter(value=>{
+             return value.car._id === _id;
+         });
+         const date = new Date(arrTripFilter[0].ngayhoanthanh);
+         const bigDate = new Date(date.getFullYear(), date.getMonth() , date.getDate(), arrTripFilter[0].giohoanthanh);
+         const dateTwo = new Date(arrTripFilter[arrTripFilter.length -1].ngaydi);
+         const smallDate = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), arrTripFilter[arrTripFilter.length -1].giodi-arrTripFilter[arrTripFilter.length -1].route.thoigiandi-2);
+         if(currentDate >= bigDate){ // thoi gian dat lon nhat
+             if(currentRoute !== arrTripFilter[0].route._id){
+                 boolean = true
+             }
+             else {
+                 boolean = false;
+             }
+         }else if(currentDate <= smallDate){  // thoi gian dat nho nhat
+            if(currentRoute !== arrTripFilter[arrTripFilter.length-1].route._id){
+                boolean = true
+            }
+            else {
+                boolean = false;
+            }
+         }
+         else{
+             boolean = false;
+         }
+         
+     }
+     return boolean
+     
+}
+
+
+const getCarOfTrip = async(req, res)=>{
     try{
+        
         const vaitro = req.body.vaitro;
         if(vaitro === 0) return res.status(200).json({
             success : false ,
@@ -340,164 +392,194 @@ const getCarOfTrip = async(req ,res)=>{
         const ngaydi = req.body.ngaydi;
         const giodi = req.body.giodi;
         const date = new Date(ngaydi);
-       
+        const route = await routeModel.findOne({noidi : noidi , noiden : noiden});
+        const currentDate = new Date(date.getFullYear(), date.getMonth() , date.getDate(), giodi);
+        const allTrip = await tripModel.find({
+            trangthai : {$ne : 'DAHUY'}
+        }).populate('car').populate('route')
         if(noidi === '' || noiden==='' || giodi === 0 || ngaydi === '') return res.status(200).json({
             success : true ,
             body : [],
 
         })
-        console.log('date : ' , date);
-        const year = date.getFullYear();
-        const month = date.getMonth()+1 < 10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
-        const day = date.getDate() < 10 ? "0"+date.getDate() : date.getDate();
-        const dateCompare = new Date(`${year}-${month}-${day}`)
-        const dateK = new Date(date.getFullYear(), date.getMonth() , date.getDate(), giodi);
-        const currentDate = new Date();
-        console.log(dateK, currentDate);
-        let whiteListCar = [];
-        const routeOne  = await routeModel.find({noidi : noidi , noiden : noiden}); // Tuyen dang them
-        const routeTwo = await routeModel.find({noidi : noiden , noiden : noidi}); // Tuyen nguoc lai
-
-        console.log(routeTwo);
-
-        // const blackOne = await tripModel.find({ 
-        //         ngaydi : dateCompare , 
-        // }).populate('car')        // Nhung tuyen nao cung ngay di thi bo ra 
-        
-        const allTrip = await tripModel.find({
-            trangthai : {$ne : 'DAHUY'}
-        }).populate('car');
-          // lấy mảng car 
-        if(allTrip.length > 0 ){  // nếu trong bảng chi tiết chưa có tuyến xe nào thì lấy tất cả xe ;
-
-            console.log('hello');
-            const carTemp = allTrip.map(value=>{
-               return value.car.biensoxe   // nếu không có thì lấy tất cả
-            })
-
-            whiteListCar = allCar.filter(value=>{
-                return carTemp.includes(value.biensoxe) === false;
-            })
-
-            const valueTrip = await Promise.all(routeTwo.map(value =>{
-                return tripModel.find({
-                    trangthai : {$ne : 'DAHUY'},
-                    route : value._id
-                }).populate('car');
-            }))
-    
-            if(valueTrip.length > 0){
-                for(let i = 0 ; i < valueTrip.length ;i++){
-                    if(valueTrip[i].length > 0){
-                        valueTrip[i].forEach((value ,index)=>{
-                            const dateTwo = new Date(value.ngayhoanthanh);
-                            console.log('Date two :',dateTwo);
-                            const dateV = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), value.giohoanthanh);
-                            // console.log(dateK > dateV , dateK , dateV , giodi , value.giohoanthanh); 
-                            if(dateK > dateV){
-                                whiteListCar.push(value.car);
-                            }
-                        })
-                    }
-                   
-                }
-               
-            }
-            const noteValueTrip =await Promise.all(routeTwo.map(value =>{
-                return tripModel.find({
-                    trangthai : {$ne : 'DAHUY'},
-                    route : value._id
-                }).populate('car')
-            }));
-            if(noteValueTrip.length > 0){
-                for(let i = 0 ; i <noteValueTrip.length ; i++){
-                    if(noteValueTrip[i].length > 0){
-                        noteValueTrip[i].forEach((value ,index)=>{
-                            const dateTwo = new Date(value.ngayhoanthanh);
-                            const dateV = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), value.giohoanthanh + 72);
-                            if(dateK > dateV){
-                                whiteListCar.push(value.car);
-                            }
-                        })
-                    }
-                   
-                }
-               
-            }
-
+        // ticketResult.sort((a, b)=>{
+        //     return new Date(a.thoigiandat) < new Date(b.thoigiandat) ? 1 : -1
+        // })
+        const listCar = [];
+        if(allTrip.length > 0){
+           allTrip.sort((a,b)=>{
+                const dateOne = new Date(a.thoigiandi);
+                const dateTwo = new Date(b.thoigiandi);
+                return new Date(dateOne.getFullYear(),dateOne.getMonth(),dateOne.getDate(),a.giodi) <  
+                       new Date(dateTwo.getFullYear(),dateTwo.getMonth(),dateTwo.getDate(),b.giodi) ? 1 : -1 
+           })
+           for(let i = 0 ; i < allCar.length ;i++){
+               if(checkTrip(allTrip,allCar[i]._id,currentDate,route._id)){
+                    listCar.push(allCar[i]);
+               }
+           }
+           console.log(allTrip);
         }
         else{
-            whiteListCar = [...allCar]
+            allCar.forEach((value=>{
+                listCar.push(value)
+            }))
         }
-       
-        // const blackTwo = await tripModel.find({  // Xet tuyen nguoc lai , neu ngay hoan thanh 
-        //             route :  routeTwo._id,
-        //             ngayhoanthanh  : dateCompare
-        // }).where('giohoanthanh').gte(giodi).populate('car');  // lớn hơn
-        // if(blackOne.length > 0){
-        //     blackOne.forEach(element => {
-        //         blackListCar.push(element.car)
-        //     }); 
-        // }
-        // if(blackTwo.length > 0){
-        //     blackTwo.forEach(element => {
-        //         blackListCar.push(element.car)
-        //     }); 
-        // }
-    
-        // const filterBlack =  blackListCar.filter( value =>{
-        //     return value.trangthai === true
-        // })
 
-        // const listCar = [];
-
-        // const blackFinal = filterBlack.map(value =>{
-        //     return value.biensoxe
-        // })
-        // allCar.forEach((value ,index)=>{
-        //     if(!blackFinal.includes(value.biensoxe)) 
-        //     {
-        //         listCar.push(value);
-        //     }
-
-        // })
-        // console.log(listCar.length , filterBlack.length , blackFinal);
-        // console.log(whiteListCar);
-       
-        let listCar =[];
-
-        whiteListCar.forEach((value,index)=>{
-            if(listCar.length > 0 ){
-                // listCar.forEach((values , indexs)=>{
-                //     if(values.biensoxe !== value.biensoxe){
-                //         listCar.push(value);
-                //     }
-                // })
-                if(!checkUnquie(listCar , value.biensoxe)){
-                    listCar.push(value);
-                }
-            }
-            else
-            {
-                listCar.push(value);
-            }
-        })
-        // listCar = (whiteListCar.filter(value =>{
-        //     return value.trangthai === true;
-        // }))
-        // console.log(listCar);
         return res.status(200).json({
             success : true ,
             body : listCar,
+
         })
+        
+
+    }catch(err){
+        console.log(err);
+        return res.status(200).json({
+            success : false ,
+            message : ''
+
+        })
+    }
+}
+// const getCarOfTrip = async(req ,res)=>{
+//     try{
+//         const vaitro = req.body.vaitro;
+//         if(vaitro === 0) return res.status(200).json({
+//             success : false ,
+//          message : "Bạn không có quyền lấy"
+//         })
+
+
+//         const allCar = await carModel.find({trangthai : true});
+//         const noidi = req.body.noidi;
+//         const noiden =  req.body.noiden;
+//         const ngaydi = req.body.ngaydi;
+//         const giodi = req.body.giodi;
+//         const date = new Date(ngaydi);
+       
+//         if(noidi === '' || noiden==='' || giodi === 0 || ngaydi === '') return res.status(200).json({
+//             success : true ,
+//             body : [],
+
+//         })
+//         console.log('date : ' , date);
+//         const year = date.getFullYear();
+//         const month = date.getMonth()+1 < 10 ? "0"+(date.getMonth()+1) : date.getMonth()+1;
+//         const day = date.getDate() < 10 ? "0"+date.getDate() : date.getDate();
+//         const dateCompare = new Date(`${year}-${month}-${day}`)
+//         const dateK = new Date(date.getFullYear(), date.getMonth() , date.getDate(), giodi);
+//         const currentDate = new Date();
+//         console.log(dateK, currentDate);
+//         let whiteListCar = [];
+//         const routeOne  = await routeModel.find({noidi : noidi , noiden : noiden}); // Tuyen dang them
+//         const routeTwo = await routeModel.find({noidi : noiden , noiden : noidi}); // Tuyen nguoc lai
+
+//         console.log(routeTwo);
+
+//         // const blackOne = await tripModel.find({ 
+//         //         ngaydi : dateCompare , 
+//         // }).populate('car')        // Nhung tuyen nao cung ngay di thi bo ra 
+        
+//         const allTrip = await tripModel.find({
+//             trangthai : {$ne : 'DAHUY'}
+//         }).populate('car');
+//           // lấy mảng car 
+//         if(allTrip.length > 0 ){  // nếu trong bảng chi tiết chưa có tuyến xe nào thì lấy tất cả xe ;
+
+//             console.log('hello');
+//             const carTemp = allTrip.map(value=>{
+//                return value.car._id   // nếu không có thì lấy tất cả
+//             })
+
+//             whiteListCar = allCar.filter(value=>{
+//                 return carTemp.includes(value.biensoxe) === false;
+//             })
+
+//             const valueTrip = await Promise.all(routeTwo.map(value =>{
+//                 return tripModel.find({
+//                     trangthai : {$ne : 'DAHUY'},
+//                     route : value._id
+//                 }).populate('car');
+//             }))
+    
+//             if(valueTrip.length > 0){
+//                 for(let i = 0 ; i < valueTrip.length ;i++){
+//                     if(valueTrip[i].length > 0){
+//                         valueTrip[i].forEach((value ,index)=>{
+//                             const dateTwo = new Date(value.ngayhoanthanh);
+//                             console.log('Date two :',dateTwo);
+//                             const dateV = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), value.giohoanthanh);
+//                             // console.log(dateK > dateV , dateK , dateV , giodi , value.giohoanthanh); 
+//                             if(dateK > dateV){
+//                                 whiteListCar.push(value.car);
+//                             }
+//                         })
+//                     }
+                   
+//                 }
+               
+//             }
+//             const noteValueTrip =await Promise.all(routeTwo.map(value =>{
+//                 return tripModel.find({
+//                     trangthai : {$ne : 'DAHUY'},
+//                     route : value._id
+//                 }).populate('car')
+//             }));
+//             if(noteValueTrip.length > 0){
+//                 for(let i = 0 ; i <noteValueTrip.length ; i++){
+//                     if(noteValueTrip[i].length > 0){
+//                         noteValueTrip[i].forEach((value ,index)=>{
+//                             const dateTwo = new Date(value.ngayhoanthanh);
+//                             const dateV = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), value.giohoanthanh + 72);
+//                             if(dateK > dateV){
+//                                 whiteListCar.push(value.car);
+//                             }
+//                         })
+//                     }
+                   
+//                 }
+               
+//             }
+
+//         }
+//         else{
+//             whiteListCar = [...allCar]
+//         }
+//         let listCar =[];
+
+//         whiteListCar.forEach((value,index)=>{
+//             if(listCar.length > 0 ){
+//                 // listCar.forEach((values , indexs)=>{
+//                 //     if(values.biensoxe !== value.biensoxe){
+//                 //         listCar.push(value);
+//                 //     }
+//                 // })
+//                 if(!checkUnquie(listCar , value.biensoxe)){
+//                     listCar.push(value);
+//                 }
+//             }
+//             else
+//             {
+//                 listCar.push(value);
+//             }
+//         })
+//         // listCar = (whiteListCar.filter(value =>{
+//         //     return value.trangthai === true;
+//         // }))
+//         // console.log(listCar);
+//         return res.status(200).json({
+//             success : true ,
+//             body : listCar,
+//         })
        
 
         
-    }
-    catch(err){
-        console.log(err);
-    } 
-}
+//     }
+//     catch(err){
+//         console.log(err);
+//     } 
+// }
 const updateTrip = async(req,res)=>{
     try{
         const vaitro = req.body.vaitro;
