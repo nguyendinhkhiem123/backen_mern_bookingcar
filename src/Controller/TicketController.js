@@ -43,9 +43,9 @@ const getNumberTicket =async(req , res)=>{   // Check kiểm tra vé có đủ h
 
 
         const ticketOne = await ticketModel.find({trip :  chuyendi , trangthaive : { $ne : 'DAHUY'}});
-        const tripOne = await tripModel.find({_id :  chuyendi});
-        const veconlai = tripOne[0].car.soluongghe - ticketOne.length;
-        console.log(veconlai);
+        const tripOne = await tripModel.findOne({_id :  chuyendi}).populate('car');
+        const veconlai = tripOne.car.soluongghe - ticketOne.length;
+        console.log('veconlai',veconlai , sovedi);
         if(veconlai < sovedi){
             return res.status(200).json({
                 success : false ,
@@ -413,7 +413,7 @@ const getTicketOfTrip = async(req , res)=>{
                     // trangthaive : { $ne : "DAHUY" },
                     // thoigiandat : { $ne : null}
                
-        }).populate('trip')
+        }).populate('trip').populate('customer')
         
         
         console.log(listTicket.length);
@@ -493,11 +493,12 @@ const insertTicketOfAdmin = async(req , res)=>{
           });
 
         const ngayhientai = new Date();
-        const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours()));
+        const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours(),ngayhientai.getMinutes()));
 
         const ngaydi = new Date(trip.ngaydi);
         const ngaydiLog = new Date(Date.UTC(ngaydi.getFullYear() , ngaydi.getMonth() , ngaydi.getDate() ,trip.giodi));
-        if(ngayhientaiLog > ngaydiLog){
+        console.log(ngayhientaiLog , ngaydiLog , trip.giodi);
+        if(ngayhientaiLog >= ngaydiLog){
             return res.status(200).json({
                 success : false ,
                message : "Không thể thêm . chuyến xe đã trạng thái chạy"
@@ -571,7 +572,7 @@ const updateTicketOfAdmin = async(req , res)=>{
 
         const ngaydi = new Date(trip.ngaydi);
         const ngaydiLog = new Date(Date.UTC(ngaydi.getFullYear() , ngaydi.getMonth() , ngaydi.getDate() ,trip.giodi));
-        if(ngayhientaiLog > ngaydiLog){
+        if(ngayhientaiLog >= ngaydiLog){
             return res.status(200).json({
                 success : false ,
                message : "Không thể cập nhật . chuyến xe đã trạng thái chạy"

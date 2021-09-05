@@ -134,8 +134,11 @@ const Trip = async(req , res)=>{
                         if(dateNgayDat >= batdau && dateNgayDat <= ketthuc){
                             const k = checkUnquie(result,matuyen)
                             if(k > -1){
+                           
                                 let tien = result[k].tien + listTicket[j].trip.giave;
-                                result[i].tien = tien;
+                                console.log(tien);
+                                result[k].tien = tien;
+
                             }
                             else{
                                 result.push({

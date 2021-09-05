@@ -14,6 +14,12 @@ const getVote = async(req,res)=>{
 
 const insertVote = async (req,res)=>{
     try{
+
+        const user_id = req.body.user_id;
+        const voteFind = await voteModel.findOne({customer : user_id});
+        if(voteFind){
+            await voteModel.findOneAndDelete({customer : user_id});
+        }
         const comment = new voteModel(req.body);
         await comment.save();
         const vote = await voteModel.findOne({_id : comment._id}).populate('customer');

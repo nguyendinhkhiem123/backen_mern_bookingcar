@@ -7,7 +7,7 @@ const voteModel = new Schema({
     // _id : {type : Number},
   
     mota : { type : String , require : true},
-    sosao : { type : Number , require : true},
+    sosao : { type : Number , require : true , min : 1 , max : 5},
     trangthai : { type : Boolean , default : true},
     customer :{
         type : Schema.Types.ObjectId,

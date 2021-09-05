@@ -34,9 +34,9 @@ const login = async ( req , res )=>{
 
         let ma = null ;
 
-        if(account.role.tenquyen !== 0){
+        if(account.role._id !== 0){
             const employee = await employeeModel.findOne({ account : account._id});
-            if(employee.trangthai ===true) ma = employee._id
+            if(employee.trangthai === true) ma = employee._id
             else {
                 return res.status(200).json({
                     success : false,
@@ -51,14 +51,14 @@ const login = async ( req , res )=>{
 
         const tokenAccess = jwt.sign({
             user_id :  ma,
-            vaitro : account.role.tenquyen
+            vaitro : account.role._id
         }, 
             process.env.TOKEN_ACCESS_KEY,
             { expiresIn: '30d' }
         );
         const tokenRefresh = jwt.sign({
             user_id :  ma,
-            vaitro : account.role.tenquyen
+            vaitro : account.role._id
         }, 
             process.env.TOKEN_REFRESH_KEY,
             { expiresIn: '90d' }
@@ -70,7 +70,7 @@ const login = async ( req , res )=>{
             body : {
                 tokenAccess ,
                 tokenRefresh,
-                vaitro : account.role.tenquyen
+                vaitro : account.role._id
 
             }
         }) 
@@ -102,7 +102,7 @@ const createUser = async ( req , res ) =>{
             success : false ,
             message : 'Username đã bị trùng vui lòng thử lại '
         }); 
-        const role = await RoleModel.findOne({tenquyen : 0});
+        const role = await RoleModel.findOne({_id : 0});
         const matkhau1 = await argon2.hash(req.body.matkhau);
 
         const newAccount = new accountModel({
@@ -176,7 +176,7 @@ const adminCreateAccount = async(req, res)=>{
             success : false ,
             message : 'Username đã bị trùng vui lòng thử lại '
         }); 
-        const role = await RoleModel.findOne({tenquyen : 1});
+        const role = await RoleModel.findOne({_id : 1});
         const matkhau1 = await argon2.hash(req.body.matkhau);
 
         const newAccount = new accountModel({

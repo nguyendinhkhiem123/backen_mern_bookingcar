@@ -252,7 +252,7 @@ const updateStausTrip =  async(req, res)=>{
         const ngaydi = newDate(trip.ngaydi , trip.giodi);
         const ngayhoanthanh = newDate(trip.ngayhoanthanh , trip.giohoanthanh)
         const ngayhientai = new Date();
-        const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours()));
+        const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours(), ngayhientai.getMinutes()));
      
 
         console.log(ngayhientaiLog , ngayhoanthanh , ngaydi);
@@ -339,7 +339,7 @@ const checkUnquieCar = (arrTrip , _id)=>{ // kiểm tra xe có chạy chuyến n
 }
 
 const checkTrip = (arrTrip , _id , currentDate , currentRoute)=>{  // list đã được sort;
-     let boolean = true;
+     let boolean = false;
      if(!checkUnquieCar(arrTrip , _id )){
             boolean = true;
      }
@@ -350,24 +350,111 @@ const checkTrip = (arrTrip , _id , currentDate , currentRoute)=>{  // list đã 
          const date = new Date(arrTripFilter[0].ngayhoanthanh);
          const bigDate = new Date(date.getFullYear(), date.getMonth() , date.getDate(), arrTripFilter[0].giohoanthanh);
          const dateTwo = new Date(arrTripFilter[arrTripFilter.length -1].ngaydi);
-         const smallDate = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), arrTripFilter[arrTripFilter.length -1].giodi-arrTripFilter[arrTripFilter.length -1].route.thoigiandi-2);
-         if(currentDate >= bigDate){ // thoi gian dat lon nhat
-             if(currentRoute !== arrTripFilter[0].route._id){
-                 boolean = true
+         const smallDate = new Date(dateTwo.getFullYear(), dateTwo.getMonth() ,dateTwo.getDate(),arrTripFilter[arrTripFilter.length -1].giodi-currentRoute.thoigian-2);
+         console.log(currentDate,bigDate,dateTwo,smallDate , _id)
+         if(currentDate >= bigDate){ // thoi gian dat lon nhat  
+            console.log( currentRoute._id.toString() , typeof arrTripFilter[0].route._id )
+             if(currentRoute._id.toString() !== arrTripFilter[0].route._id.toString()){ // nếu nó khác tuyến
+                 boolean = true;
+                 console.log('big true one')
              }
-             else {
-                 boolean = false;
+             else { 
+                 const bigDateTwo = new Date(date.getFullYear(), date.getMonth() , date.getDate(), arrTripFilter[0].giohoanthanh+ currentRoute.thoigian+2); //thoigianhoanthanh + 2
+                 if(currentDate >= bigDateTwo){
+                     boolean = true  // nếu trùng tuyến
+                     console.log('big true two')
+                 }
+                 else{
+                    console.log('big fasle two')
+                 }
+                
              }
          }else if(currentDate <= smallDate){  // thoi gian dat nho nhat
-            if(currentRoute !== arrTripFilter[arrTripFilter.length-1].route._id){
+          
+            if(currentRoute._id.toString() !== arrTripFilter[arrTripFilter.length-1].route._id.toString()){ // khác tuyến
                 boolean = true
+                console.log('small true one')
             }
             else {
-                boolean = false;
+                const smallDateTwo = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), arrTripFilter[arrTripFilter.length -1].giodi-currentRoute.thogiandi*2-2*2);
+                if(currentDate <= smallDateTwo){
+                    boolean = true  // trùng tuyến
+                    console.log('small true two')
+                }
+                else{
+                   boolean = false;
+                   console.log('small false two')
+                }
+              
             }
          }
          else{
-             boolean = false;
+            const dateOne = new Date(arrTripFilter[0].ngaydi);
+            const dateTimeOne = new Date(dateOne.getFullYear(), dateOne.getMonth() , dateOne.getDate(), arrTripFilter[0].giodi);
+            const datTimeTwo = new Date(dateTwo.getFullYear(), dateTwo.getMonth() , dateTwo.getDate(), arrTripFilter[arrTripFilter.length -1].giodi);
+
+            if(currentDate <= datTimeTwo || currentDate >= dateTimeOne){
+                console.log('bằng')
+                boolean = false;  // Không nằm trong khoảng thời gian đi
+            }
+            else{
+                let i ; j = -1;
+                if(arrTripFilter.length === 1){
+                    i = 0;
+                    j = 0    
+                }
+                else{
+                    for(let k = 0 ; k < arrTripFilter.length ; k++){
+                        const dateValue = new Date(arrTripFilter[k].ngaydi);
+                        const dateTimeValue = new Date(dateValue.getFullYear(), dateValue.getMonth() , dateValue.getDate(), arrTripFilter[k].giodi);
+                        if(currentDate <= dateTimeValue){
+                             i = k ;
+                             j = k + 1;  // Tìm kiếm i , j sao a[i].thoigian >= curentDate >= a[j].thoigian
+                        }
+        
+                    }
+                   
+                }
+                console.log(i , j);
+                if(i !== -1 && j !==-1){
+                    let dateTimeI = null
+                    let dateTimeJ = null;
+                    const dataI = arrTripFilter[i];
+                    const dataJ = arrTripFilter[j];
+                    const dateArrI = new Date(arrTripFilter[i].ngaydi);
+                    const dateArrJ = new Date(arrTripFilter[j].ngayhoanthanh); 
+                    console.log('hello')
+                    console.log(currentRoute._id.toString() !== dataI.route._id.toString() && currentRoute._id.toString()=== dataJ.route._id.toString() )
+                    if(currentRoute._id.toString() === dataI.route._id.toString() && currentRoute._id.toString() === dataJ.route._id.toString()){  // Nếu trùng tuyến thời gian * 2 , khác tuyến thời gian bình thường
+                            console.log('a == b ==c')
+                         dateTimeI =new Date(dateArrI.getFullYear(), dateArrI.getMonth() , dateArrI.getDate(), dataI.giodi-currentRoute.thoigian*2-2*2);
+                         dateTimeJ =new Date(dateArrJ.getFullYear(), dateArrJ.getMonth() , dateArrJ.getDate(), dataJ.giohoanthanh+currentRoute.thoigian+2);
+                     }
+                    else if(currentRoute._id.toString() !== dataI.route._id.toString() && currentRoute._id.toString() !== dataJ.route._id.toString()){
+                        
+                        console.log('a != b !=c')
+                        dateTimeI =new Date(dateArrI.getFullYear(), dateArrI.getMonth() , dateArrI.getDate(), dataI.giodi-currentRoute.thoigian-2);
+                        dateTimeJ =new Date(dateArrJ.getFullYear(), dateArrJ.getMonth() , dateArrJ.getDate(), dataJ.giohoanthanh);
+                    }
+                    else if(currentRoute._id.toString() !== dataI.route._id.toString() && currentRoute._id.toString() === dataJ.route._id.toString()){
+                        console.log('a != b =c')
+                        dateTimeI =new Date(dateArrI.getFullYear(), dateArrI.getMonth() , dateArrI.getDate(), dataI.giodi-currentRoute.thoigian-2);
+                        dateTimeJ =new Date(dateArrJ.getFullYear(), dateArrJ.getMonth() , dateArrJ.getDate(), dataJ.giohoanthanh+currentRoute.thoigian+2);
+                    } else if(currentRoute._id.toString() === dataI.route._id.toString() && currentRoute._id.toString() !== dataJ.route._id.toString()){
+                        console.log('a = b !=c')
+                        dateTimeI =new Date(dateArrI.getFullYear(), dateArrI.getMonth() , dateArrI.getDate(), dataI.giodi-currentRoute.thoigian*2-2*2);
+                        dateTimeJ =new Date(dateArrJ.getFullYear(), dateArrJ.getMonth() , dateArrJ.getDate(), dataJ.giohoanthanh);
+                    }
+                    console.log(dateTimeJ , dateTimeI , currentDate);
+                    if(currentDate >= dateTimeJ && currentDate <= dateTimeI){
+                        boolean = true;
+                    }
+                    else {
+                        boolean = false;
+                    }
+                }
+             
+            }
          }
          
      }
@@ -382,7 +469,7 @@ const getCarOfTrip = async(req, res)=>{
         const vaitro = req.body.vaitro;
         if(vaitro === 0) return res.status(200).json({
             success : false ,
-         message : "Bạn không có quyền lấy"
+            message : "Bạn không có quyền lấy"
         })
 
 
@@ -391,9 +478,19 @@ const getCarOfTrip = async(req, res)=>{
         const noiden =  req.body.noiden;
         const ngaydi = req.body.ngaydi;
         const giodi = req.body.giodi;
+        if(giodi === 0 || ngaydi === ''){
+            return res.status(200).json({
+                success : true ,
+                body : [],
+    
+            })
+        }
         const date = new Date(ngaydi);
-        const route = await routeModel.findOne({noidi : noidi , noiden : noiden});
+        const route = await routeModel.findOne({noidi : noidi , noiden : noiden});  
         const currentDate = new Date(date.getFullYear(), date.getMonth() , date.getDate(), giodi);
+
+
+    
         const allTrip = await tripModel.find({
             trangthai : {$ne : 'DAHUY'}
         }).populate('car').populate('route')
@@ -408,17 +505,18 @@ const getCarOfTrip = async(req, res)=>{
         const listCar = [];
         if(allTrip.length > 0){
            allTrip.sort((a,b)=>{
-                const dateOne = new Date(a.thoigiandi);
-                const dateTwo = new Date(b.thoigiandi);
+                const dateOne = new Date(a.ngaydi);
+                const dateTwo = new Date(b.ngaydi);
                 return new Date(dateOne.getFullYear(),dateOne.getMonth(),dateOne.getDate(),a.giodi) <  
                        new Date(dateTwo.getFullYear(),dateTwo.getMonth(),dateTwo.getDate(),b.giodi) ? 1 : -1 
            })
+          
            for(let i = 0 ; i < allCar.length ;i++){
-               if(checkTrip(allTrip,allCar[i]._id,currentDate,route._id)){
+               if(checkTrip(allTrip,allCar[i]._id,currentDate,route)){
                     listCar.push(allCar[i]);
                }
            }
-           console.log(allTrip);
+       
         }
         else{
             allCar.forEach((value=>{
@@ -606,12 +704,12 @@ const updateTrip = async(req,res)=>{
             })
         }
         const ngayhientai = new Date();
-        const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours()));
+        const ngayhientaiLog = new Date(Date.UTC(ngayhientai.getFullYear() , ngayhientai.getMonth() , ngayhientai.getDate() ,ngayhientai.getHours(), ngayhientai.getMinutes()));
 
         const ngaydi = new Date(oldTrip.ngaydi);
         const ngaydiLog = new Date(Date.UTC(ngaydi.getFullYear() , ngaydi.getMonth() , ngaydi.getDate() ,oldTrip.ngaydi));
 
-        if(ngayhientaiLog > ngaydiLog){
+        if(ngayhientaiLog >= ngaydiLog){
             return res.status(200).json({
                 success : false ,
              message : "Không thể sửa . chuyến xe đã trạng thái chạy"

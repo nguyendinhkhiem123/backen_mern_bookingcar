@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 
 const employeeModel = new Schema({
     // _id : {type : Number},
-    hovaten : { type : String , default: ''},
-    diachi : { type : String , default : ''},
+    hovaten : { type : String , require : true},
+    diachi : { type : String},
     email : { type : String , require : true },
     sdt : { type : String , require : true  },
     ngaysinh : { type : Date  , require : true},
