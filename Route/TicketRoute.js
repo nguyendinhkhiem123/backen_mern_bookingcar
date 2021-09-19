@@ -20,6 +20,7 @@ route.post('/getslotcar',verifyToken,ticketController.getSlotCar);
 route.post('/insertticketofadmin',verifyToken,ticketController.insertTicketOfAdmin);
 route.post('/updateticketofadmin',verifyToken,ticketController.updateTicketOfAdmin);
 route.post('/deleteticket',verifyToken,ticketController.deleteTicket);
+route.get('/getallticket',verifyToken,ticketController.getAllTicket);
 module.exports = route
 
 

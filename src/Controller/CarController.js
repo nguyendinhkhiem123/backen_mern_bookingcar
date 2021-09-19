@@ -7,15 +7,18 @@ const insertCar = async(req , res)=>{
             success : false ,
             messgae : "Bạn không có quyền thêm"
         })
-        const car = await carModel.findOne({biensoxe :  req.body.biensoxe}) 
+        const car = await carModel.findOne({_id :  req.body.biensoxe.trim()}) 
         if(car) return res.status(200).json({
             success : false ,
             message : "Biển số xe bị trùng vui lòng xem lại"
         })
-        const biensoxe = req.body.biensoxe;
-        console.log(req.body);
-        req.body._id = biensoxe;
-        const newCar = new carModel(req.body);
+        const biensoxe = req.body.biensoxe.trim();
+
+        const body = {
+            _id : biensoxe.trim(),
+            soluongghe : req.body.soluongghe
+        }
+        const newCar = new carModel(body);
         await newCar.save()
 
         const carOne = await carModel.findOne({_id : newCar._id}).populate('route');
@@ -102,8 +105,8 @@ const updateCar = async(req , res)=>{
         })
 
         const car = await carModel.findOne({_id : req.body.id});
-        if(car.biensoxe !== req.body.biensoxe){
-            const carSo = await carModel.findOne({biensoxe :  req.body.biensoxe}) 
+        if(car._id !== req.body.id){
+            const carSo = await carModel.findOne({_id :  req.body._id}) 
             if(carSo) return res.status(200).json({
                 success : false ,
                 message : "Biển số xe bị trùng vui lòng xem lại"
@@ -112,7 +115,6 @@ const updateCar = async(req , res)=>{
 
         const carUpdate = await carModel.findOneAndUpdate({_id : req.body.id} , {
             trangthai  : req.body.trangthai,
-            biensoxe  : req.body.biensoxe ,
             soluongghe  : req.body.soluongghe,
         })
         return res.status(200).json({

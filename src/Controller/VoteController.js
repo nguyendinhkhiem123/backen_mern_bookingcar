@@ -1,4 +1,5 @@
-const voteModel = require('../Model/VoteModel')
+const voteModel = require('../Model/VoteModel');
+const ticketModel = require('../Model/TicketModel');
 const getVote = async(req,res)=>{
     try{
         const listVote = await voteModel.find({ trangthai : { $ne : false}}).populate('customer')
@@ -16,6 +17,13 @@ const insertVote = async (req,res)=>{
     try{
 
         const user_id = req.body.user_id;
+        const ticket = await ticketModel.find({ customer : user_id , trangthaive : 'DADAT'});
+        if(ticket.length === 0){
+            return res.status(200).json({
+                success : false ,
+                message : 'Không thể đánh giá . Bạn chưa đi '
+            })
+        }
         const voteFind = await voteModel.findOne({customer : user_id});
         if(voteFind){
             await voteModel.findOneAndDelete({customer : user_id});

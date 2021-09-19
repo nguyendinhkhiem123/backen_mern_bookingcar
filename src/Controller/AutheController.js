@@ -96,8 +96,21 @@ const createUser = async ( req , res ) =>{
    
     try{
 
-        console.log(req.body);
-        const account = await accountModel.findOne({ _id : req.body.taikhoan })       
+        const email = await customerModel.findOne({email : req.body.email.trim()});
+        if(email){
+            return res.status(200).json({
+                success : false ,
+                message : 'Email đã bị trùng . Vui lòng xem lại'
+            });   
+        }
+        const sdt = await customerModel.findOne({sdt : req.body.sdt.trim()});
+        if(sdt){
+            return res.status(200).json({
+                success : false ,
+                message : 'Số điện thoại bị trùng. Vui lòng xem lại'
+            });   
+        }
+        const account = await accountModel.findOne({ _id : req.body.taikhoan});     
         if(account) return res.status(200).json({
             success : false ,
             message : 'Username đã bị trùng vui lòng thử lại '
@@ -115,8 +128,8 @@ const createUser = async ( req , res ) =>{
         const body = {
             hovaten : req.body.hovaten,
             diachi :  req.body.diachi,
-            email : req.body.email,
-            sdt : req.body.sdt,
+            email : req.body.email.trim(),
+            sdt : req.body.sdt.trim(),
             ngaysinh : req.body.ngaysinh,
             hinhanh : req.body.hinhanh,
             account : newAccount._id
@@ -171,7 +184,7 @@ const token = async ( req , res ) =>{
 const adminCreateAccount = async(req, res)=>{
     try{
         console.log(req.body);
-        const account = await accountModel.findOne({ _id : req.body.taikhoan })       
+        const account = await accountModel.findOne({ _id : req.body.taikhoan})       
         if(account) return res.status(200).json({
             success : false ,
             message : 'Username đã bị trùng vui lòng thử lại '

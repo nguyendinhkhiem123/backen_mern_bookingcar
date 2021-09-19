@@ -28,7 +28,6 @@ const getUser = (async (req, res) =>{
         body : body
     })
 })
-
 const updateUser = ( async (req , res) =>{
     try{
 
@@ -36,11 +35,46 @@ const updateUser = ( async (req , res) =>{
         const id = req.body.user_id;
         let body;
         if(vaitro === 0){
+            const email = await customerModel.findOne({email : req.body.email.trim() , _id : {$ne : id}});
+            const customers = await customerModel.findOne({_id : id})
+            if(email){
+                return res.status(200).json({
+                    success : false ,
+                    message : 'Email đã bị trùng . Vui lòng xem lại',
+                    body :  customers
+                });   
+            }
+            const sdt = await customerModel.findOne({sdt : req.body.sdt.trim(),  _id : {$ne : id}});
+            if(sdt){
+                return res.status(200).json({
+                    success : false ,
+                    message : 'Số điện thoại bị trùng. Vui lòng xem lại',
+                    body :  customers
+                });   
+            }
             const customer = await customerModel.findOneAndUpdate({_id : id } , req.body);
             const findOneCustomer = await customerModel.findOne({_id : id });
             body = findOneCustomer
         }
         else{
+            const employees = await employeeModel.findOne({_id : id})
+            const email = await employeeModel.findOne({email : req.body.email.trim() , _id : {$ne : id}});
+            console.log(email)
+            if(email){
+                return res.status(200).json({
+                    success : false ,
+                    message : 'Email đã bị trùng . Vui lòng xem lại',
+                    body : employees
+                });   
+            }
+            const sdt = await employeeModel.findOne({sdt : req.body.sdt.trim() , _id : {$ne : id}});
+            if(sdt){
+                return res.status(200).json({
+                    success : false ,
+                    message : 'Số điện thoại bị trùng. Vui lòng xem lại',
+                    body : employees
+                });   
+            }
             const employee = await employeeModel.findOneAndUpdate({_id : id } , req.body);
             const findOneEmployee = await employeeModel.findOne({_id : id });
             body = findOneEmployee 
@@ -60,7 +94,6 @@ const updateUser = ( async (req , res) =>{
         })
     } 
 })
-
 const changePassword = ( async (req , res)=>{
     try{
         const id = req.body.user_id;
@@ -69,10 +102,12 @@ const changePassword = ( async (req , res)=>{
         let body = null;
 
         if(vaitro === 0){
+            
             const findOneCustomer = await customerModel.findOne({_id : id }).populate('account');
             body = findOneCustomer
         }
         else{
+            
             const findOneEmployee = await employeeModel.findOne({_id : id }).populate('account');
             body = findOneEmployee 
         }
@@ -107,7 +142,7 @@ const changePassword = ( async (req , res)=>{
 const forgotPassword =  (async( req , res)=>{
     try{
         
-        const account = await accountModel.findOne({ taikhoan : req.body.taikhoan })
+        const account = await accountModel.findOne({ _id : req.body.taikhoan })
         
         if(!account) return res.json({
             success : false ,
@@ -160,7 +195,6 @@ const forgotPassword =  (async( req , res)=>{
         })
     }
 })
-
 const getEmployee = ( async (req , res) =>{
     try{
 
@@ -212,7 +246,6 @@ const updateStatusEmployee = ( async (req , res) =>{
         })
     } 
 })
-
 const insertEmployee = ( async (req , res) =>{
     try{
 
@@ -223,6 +256,20 @@ const insertEmployee = ( async (req , res) =>{
             messgae : "Bạn không có quyền thêm"
         })
        
+        const email = await employeeModel.findOne({email : req.body.email.trim()});
+        if(email){
+            return res.status(200).json({
+                success : false ,
+                message : 'Email đã bị trùng . Vui lòng xem lại'
+            });   
+        }
+        const sdt = await employeeModel.findOne({sdt : req.body.sdt.trim()});
+        if(sdt){
+            return res.status(200).json({
+                success : false ,
+                message : 'Số điện thoại bị trùng. Vui lòng xem lại'
+            });   
+        }
         const employee = new employeeModel(req.body);
         await employee.save();
         const newEmployee = await employeeModel.findOne({_id : employee._id}).populate('account');
@@ -240,7 +287,6 @@ const insertEmployee = ( async (req , res) =>{
         })
     } 
 })
-
 const updateEmployee = ( async (req , res) =>{
     try{
 
@@ -250,7 +296,20 @@ const updateEmployee = ( async (req , res) =>{
             success : false ,
             messgae : "Bạn không có quyền thêm"
         })
-       
+        const email = await employeeModel.findOne({email : req.body.email.trim() ,  _id : {$ne : id}});
+        if(email){
+            return res.status(200).json({
+                success : false ,
+                message : 'Email đã bị trùng . Vui lòng xem lại'
+            });   
+        }
+        const sdt = await employeeModel.findOne({sdt : req.body.sdt.trim() ,  _id : {$ne : id}});
+        if(sdt){
+            return res.status(200).json({
+                success : false ,
+                message : 'Số điện thoại bị trùng. Vui lòng xem lại'
+            });   
+        }
         const employee = await employeeModel.findOneAndUpdate({_id : req.body.id } , req.body)
         const newEmployee = await employeeModel.findOne({_id : req.body.id}).populate('account');
         console.log(newEmployee);
@@ -268,7 +327,6 @@ const updateEmployee = ( async (req , res) =>{
         })
     } 
 })
-
 const getEmployeeNoAccount = async(req, res)=>{
     try{    
         const vaitro = req.body.vaitro;

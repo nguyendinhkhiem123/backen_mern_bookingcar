@@ -44,9 +44,9 @@ const insertTrip = async(req , res)=>{
 
         req.body.route =  route._id
         req.body.ngaydi = date;
-        req.body.ngayhoanthanh = new Date(Date.UTC (date.getFullYear() , date.getMonth() , date.getDate() +  Math.floor((thoigian +  giodi)/24) ))
+        req.body.ngayhoanthanh = new Date(Date.UTC (date.getFullYear() , date.getMonth() , date.getDate() +  Math.floor((thoigian +  giodi + 2)/24) ))
 
-        req.body.giohoanthanh = (thoigian + giodi)%24 + 2;
+        req.body.giohoanthanh = (thoigian + giodi + 2)%24;
         const newTrips = new tripModel(req.body);
         await newTrips.save();
         const newTrip = await tripModel.find({_id : newTrips._id}).populate('car').populate('route');
@@ -70,20 +70,21 @@ const insertTrip = async(req , res)=>{
         })
     }
 }
-const getAllTrip = async(req ,res)=>{
+const getAllTrip = async(req ,res)=>{ 
     try{
         const vaitro = req.body.vaitro;  
         if(vaitro === 0) return res.status(200).json({
             success : false ,
          message : "Bạn không có quyền lấy"
         })
+        const list = [];
         const newTrip = await tripModel.find({}).populate('car').populate('route');
-        
         return res.status(200).json({
             success : true ,
             message : 'Bạn lấy thành công',
             body : {
-                newTrip
+                newTrip,
+                list
              }
         }); 
 
@@ -332,7 +333,7 @@ const checkUnquieCar = (arrTrip , _id)=>{ // kiểm tra xe có chạy chuyến n
         if(arrTrip[i].car._id === _id) 
         {
             boolean = true;
-            break
+            break;
         }
     }
     return boolean
@@ -341,6 +342,7 @@ const checkUnquieCar = (arrTrip , _id)=>{ // kiểm tra xe có chạy chuyến n
 const checkTrip = (arrTrip , _id , currentDate , currentRoute)=>{  // list đã được sort;
      let boolean = false;
      if(!checkUnquieCar(arrTrip , _id )){
+         console.log(_id ,'hello')
             boolean = true;
      }
      else{
@@ -351,12 +353,12 @@ const checkTrip = (arrTrip , _id , currentDate , currentRoute)=>{  // list đã 
          const bigDate = new Date(date.getFullYear(), date.getMonth() , date.getDate(), arrTripFilter[0].giohoanthanh);
          const dateTwo = new Date(arrTripFilter[arrTripFilter.length -1].ngaydi);
          const smallDate = new Date(dateTwo.getFullYear(), dateTwo.getMonth() ,dateTwo.getDate(),arrTripFilter[arrTripFilter.length -1].giodi-currentRoute.thoigian-2);
-         console.log(currentDate,bigDate,dateTwo,smallDate , _id)
+         console.log("date" ,currentDate,bigDate,dateTwo,smallDate , _id)
          if(currentDate >= bigDate){ // thoi gian dat lon nhat  
             console.log( currentRoute._id.toString() , typeof arrTripFilter[0].route._id )
              if(currentRoute._id.toString() !== arrTripFilter[0].route._id.toString()){ // nếu nó khác tuyến
                  boolean = true;
-                 console.log('big true one')
+                 console.log('big true one');
              }
              else { 
                  const bigDateTwo = new Date(date.getFullYear(), date.getMonth() , date.getDate(), arrTripFilter[0].giohoanthanh+ currentRoute.thoigian+2); //thoigianhoanthanh + 2
@@ -487,13 +489,14 @@ const getCarOfTrip = async(req, res)=>{
         }
         const date = new Date(ngaydi);
         const route = await routeModel.findOne({noidi : noidi , noiden : noiden});  
+        // const routeRe = await  routeModel.findOne({noidi : route.noiden , noiden : route.noidi})
         const currentDate = new Date(date.getFullYear(), date.getMonth() , date.getDate(), giodi);
 
 
     
         const allTrip = await tripModel.find({
             trangthai : {$ne : 'DAHUY'}
-        }).populate('car').populate('route')
+        }).populate('car').populate('route');
         if(noidi === '' || noiden==='' || giodi === 0 || ngaydi === '') return res.status(200).json({
             success : true ,
             body : [],
@@ -732,8 +735,8 @@ const updateTrip = async(req,res)=>{
 
         req.body.route =  route._id
         req.body.ngaydi = date;
-        req.body.ngayhoanthanh = new Date(Date.UTC (date.getFullYear() , date.getMonth() , date.getDate() +  Math.floor((thoigian +  giodi)/24) ));
-        req.body.giohoanthanh = (thoigian + giodi)%24 + 2;
+        req.body.ngayhoanthanh = new Date(Date.UTC (date.getFullYear() , date.getMonth() , date.getDate() +  Math.floor((thoigian +  giodi + 2)/24) ));
+        req.body.giohoanthanh = (thoigian + giodi +2)%24 ;
         await TripModel.findOneAndUpdate({_id : req.body.id }, req.body)
         const newTrip = await tripModel.findOne({_id : req.body.id}).populate('car').populate('route');
 
@@ -792,13 +795,13 @@ const deleteTrip = async (req, res)=>{
         })
     }
 }
-const checkUnquie = (arr , biensoxe)=>{
-    let i = false;
-    for(let i = 0 ; i < arr.length ; i++){
-        if(arr[i].biensoxe === biensoxe) return true
-    }
-    return false;
-}
+// const checkUnquie = (arr , biensoxe)=>{
+//     let i = false;
+//     for(let i = 0 ; i < arr.length ; i++){
+//         if(arr[i].biensoxe === biensoxe) return true
+//     }
+//     return false;
+// }
 // const checkTrip =  async (req, res)=>{
 //     try{
 //         const id = req.body.id;

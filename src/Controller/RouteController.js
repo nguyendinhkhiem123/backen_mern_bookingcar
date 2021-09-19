@@ -32,20 +32,20 @@ const insertRoute = async(req , res)=>{
             message : "Bạn không có quyền đến thêm"
         })
         
-        const routeKey =  await routeModel.findOne({matuyen : req.body.matuyen});
+        const routeKey =  await routeModel.findOne({matuyen : req.body.matuyen.trim()});
         if(routeKey) return res.status(200).json({
             success : false ,
             message : `Mã Tuyến đã tồn tại`
         })
-        const route = await routeModel.findOne({noidi : req.body.noidi , noiden : req.body.noiden })
+        const route = await routeModel.findOne({noidi : req.body.noidi.trim() , noiden : req.body.noiden.trim() })
         if(route) return res.status(200).json({
             success : false ,
             message : `Tuyến đường từ ${req.body.noidi} đến ${req.body.noiden} đã có !.`
         })
         const body = {
-            matuyen :  req.body.matuyen,
-            noidi : req.body.noidi ,
-            noiden : req.body.noiden ,
+            matuyen :  req.body.matuyen.trim(),
+            noidi : req.body.noidi.trim(),
+            noiden : req.body.noiden.trim() ,
             quangduong : req.body.quangduong,
             giave : req.body.giave,
             hinhanh : req.body.hinhanh || '',
@@ -56,9 +56,9 @@ const insertRoute = async(req , res)=>{
         await newRoute.save();
 
         const bodyReverse = {
-            matuyen :  req.body.matuyen,
-            noidi : req.body.noiden ,
-            noiden : req.body.noidi ,
+            matuyen :  req.body.matuyen.trim(),
+            noidi : req.body.noiden.trim() ,
+            noiden : req.body.noidi.trim() ,
             quangduong : req.body.quangduong,
             giave : req.body.giave,
             thoigian : req.body.thoigian,
@@ -101,15 +101,15 @@ const updateRoute = async(req , res)=>{
         const oldRoute = await routeModel.findOne({_id : req.body.id});
         console.log(oldRoute);
         if(oldRoute.matuyen !== req.body.matuyen){
-            const routeKey =  await routeModel.findOne({matuyen : req.body.matuyen});
+            const routeKey =  await routeModel.findOne({matuyen : req.body.matuyen.trim()});
             if(routeKey) return res.status(200).json({
                 success : false ,
                 message : `Mã Tuyến đã tồn tại`
             })
         }
         
-        if((oldRoute.noidi !== req.body.noidi) || (oldRoute.noiden !== req.body.noiden)){
-            const route = await routeModel.findOne({noidi : req.body.noidi , noiden : req.body.noiden })
+        if((oldRoute.noidi !== req.body.noidi.trim) || (oldRoute.noiden !== req.body.noiden.trim())){
+            const route = await routeModel.findOne({noidi : req.body.noidi.trim() , noiden : req.body.noiden.trim()})
             if(route) return res.status(200).json({
                 success : false ,
                 message : `Tuyến đường từ ${req.body.noidi} đến ${req.body.noiden} đã có !.`
@@ -121,16 +121,16 @@ const updateRoute = async(req , res)=>{
         const routeTwo = await routeModel.findOne({ noidi : routeOne.noiden , noiden : routeOne.noidi})
 
         const updateOne = await routeModel.findOneAndUpdate({_id : req.body.id } ,{
-            noidi : req.body.noidi ,
-            noiden : req.body.noiden ,
+            noidi : req.body.noidi.trim() ,
+            noiden : req.body.noiden.trim() ,
             quangduong : req.body.quangduong,
             trangthai : req.body.trangthai,
             thoigian : req.body.thoigian
         })
 
         const updateTwo = await routeModel.findOneAndUpdate({_id : routeTwo._id} ,{
-            noidi : req.body.noiden ,
-            noiden : req.body.noidi ,
+            noidi : req.body.noiden.trim() ,
+            noiden : req.body.noidi.trim() ,
             quangduong : req.body.quangduong,
             trangthai : req.body.trangthai,
             thoigian : req.body.thoigian
